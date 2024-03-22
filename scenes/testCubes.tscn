@@ -1,0 +1,37 @@
+[gd_scene load_steps=6 format=3 uid="uid://by7s4xsnq2qd7"]
+
+[ext_resource type="PackedScene" uid="uid://cfkgshoc48ins" path="res://scenes/player.tscn" id="1_ewwdn"]
+[ext_resource type="PackedScene" uid="uid://ik2mg0ejm86u" path="res://scenes/cube_01.tscn" id="2_quu6b"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_cq5wf"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_o8o3x"]
+sky_material = SubResource("ProceduralSkyMaterial_cq5wf")
+
+[sub_resource type="Environment" id="Environment_y17wo"]
+background_mode = 2
+sky = SubResource("Sky_o8o3x")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="testCubes" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_y17wo")
+
+[node name="Player" parent="." instance=ExtResource("1_ewwdn")]
+
+[node name="cubes" type="Node" parent="."]
+
+[node name="Cube_01" parent="cubes" instance=ExtResource("2_quu6b")]
+
+[node name="Cube_02" parent="cubes" instance=ExtResource("2_quu6b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10.5)
+
+[node name="Cube_03" parent="cubes" instance=ExtResource("2_quu6b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -21)
+
+[node name="Cube_04" parent="cubes" instance=ExtResource("2_quu6b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -31.5)

@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://ik2mg0ejm86u"]
+
+[ext_resource type="PackedScene" uid="uid://cfyxkets7uq6h" path="res://scenes/wall.tscn" id="1_nsv0m"]
+
+[node name="Cube_01" type="Node3D"]
+
+[node name="Wall" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5.2)
+
+[node name="Wall2" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.2)
+
+[node name="Wall3" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -5.2, 0)
+
+[node name="Wall4" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 5.2, 0)
+
+[node name="Wall5" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 5.2, 0, 0)
+
+[node name="Wall6" parent="." instance=ExtResource("1_nsv0m")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.2, 0, 0)

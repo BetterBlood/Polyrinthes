@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3 uid="uid://cfyxkets7uq6h"]
+
+[ext_resource type="Texture2D" uid="uid://b3hpf4aiego2u" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_diff_4k.png" id="1_w6lm1"]
+[ext_resource type="Texture2D" uid="uid://cr86wtlxpfj3l" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_nor_gl_4k.png" id="2_7ipsm"]
+[ext_resource type="Texture2D" uid="uid://durvvqtkbs7p7" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_rough_4k.png" id="3_utrk4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k1yxy"]
+albedo_texture = ExtResource("1_w6lm1")
+roughness_texture = ExtResource("3_utrk4")
+normal_enabled = true
+normal_texture = ExtResource("2_7ipsm")
+uv1_scale = Vector3(5, 5, 5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_frfw6"]
+material = SubResource("StandardMaterial3D_k1yxy")
+size = Vector3(25, 25, 0.2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c1rpm"]
+size = Vector3(1.02345, 1.90014, 1)
+
+[node name="Wall" type="StaticBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.421, 0, 0, 0, 0.421, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("BoxMesh_frfw6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(10.2489, 0, 0, 0, 5.52426, 0, 0, 0, 0.220291, 0, 0, 0)
+shape = SubResource("BoxShape3D_c1rpm")
