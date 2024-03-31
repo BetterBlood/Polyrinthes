@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="polyrinthes"
-run/main_scene="res://scenes/test_generation_001.tscn"
+run/main_scene="res://scenes/test_generation_002.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
 config/icon="res://icon.svg"
 
