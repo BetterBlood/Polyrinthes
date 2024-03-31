@@ -16,7 +16,7 @@ func _init(mazeSize: int):
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 	constructNeig()
-	removeOutsideWalls(neighborsConnected)
+	replaceValueForOutsideWalls(neighborsConnected)
 
 func constructNeig():
 	# (backward, forward, left, right, down, up)
@@ -69,7 +69,7 @@ func constructNeig():
 	
 	#print(neighbors)
 
-func removeOutsideWalls(array):
+func replaceValueForOutsideWalls(array):
 	# (backward, forward, left, right, down, up)
 	for i in range(getNbrRoom()):
 		if i < getNbrRoomOnASide():
@@ -93,8 +93,6 @@ func removeOutsideWalls(array):
 			array[i].remove_at(3)
 			array[i].insert(3, outsideWallValue)
 
-
-
 func getNeighbors(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	#neighbors[id] = neighbors[id].filter(func(number): return number != -1)
@@ -104,19 +102,19 @@ func getNeighbors(id) -> Array[int]:
 		neighborsForId.append(neighbors[id][i])
 	
 	return neighborsForId
-	
+
 func getNeigborsConnection(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	for i in range(nbrNeighbors):
 		neighborsForId.append(neighborsConnected[id][i])
 	return neighborsForId
-	
+
 func connectNeigbors(id1, id2, direction):
-	# means to remove the 2 walls of each rooms given
+	# means to remove the 2 walls of each room given
 	print("TODO ! connectNeigbors ", id1, " ", id2, " ", direction)
 
 func getNbrRoom():
 	return size * size * size
-	
+
 func getNbrRoomOnASide():
 	return size * size
