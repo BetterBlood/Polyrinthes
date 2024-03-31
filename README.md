@@ -1,7 +1,7 @@
 # PP - Projet Perso
 # Polyrinthes
 
-WIP
+WIP - Construction en cours de la structure allant recevoir la logique de connection entre chaque pièce
 
 Génération de labyrinthe en 3D
 
