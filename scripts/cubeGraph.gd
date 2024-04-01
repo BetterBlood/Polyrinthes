@@ -3,13 +3,17 @@ class_name CubeGraph
 
 var neighbors = []
 var neighborsConnected = []
-var size = 0
-const nbrNeighbors = 6
-var wallValue = -1
-var outsideWallValue = -2
+var size: int
+var nbrNeighbors: int
+var wallValue: int
+var outsideWallValue: int
 
-func _init(mazeSize: int):
+func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6):
 	size = mazeSize
+	wallValue = wallV
+	outsideWallValue = outWallV
+	nbrNeighbors = nbrN
+	
 	for i in range(getNbrRoom()):
 		neighbors.append([])
 		neighborsConnected.append([])
@@ -26,7 +30,6 @@ func constructNeig():
 	if roomsNumber <= 1: # no neighbors in these cases
 		return
 	
-	# TODO : problem here neighbors not correcty initialize:
 	for i in range(faceSize): 
 		# backward + forward
 		neighbors[i].insert(0, wallValue) # backward is empty for the front side
@@ -93,6 +96,7 @@ func replaceValueForOutsideWalls(array):
 			array[i].remove_at(3)
 			array[i].insert(3, outsideWallValue)
 
+# construct a copy of the neigbors for the id given
 func getNeighbors(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	#neighbors[id] = neighbors[id].filter(func(number): return number != -1)
@@ -103,15 +107,90 @@ func getNeighbors(id) -> Array[int]:
 	
 	return neighborsForId
 
+# construct a copy of the connected neigbors for the id given
 func getNeigborsConnection(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	for i in range(nbrNeighbors):
 		neighborsForId.append(neighborsConnected[id][i])
 	return neighborsForId
 
-func connectNeigbors(id1, id2, direction):
-	# means to remove the 2 walls of each room given
-	print("TODO ! connectNeigbors ", id1, " ", id2, " ", direction)
+# update neighborsConnected if id1 and id2 are neigbors
+# removes the 2 walls that connect roomsId given
+func connectNeigbors(id1, id2):
+	if not areNeigbors(id1, id2):
+		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neigbors !")
+		return
+	
+	# left, right
+	if id1 + 1 == id2:
+		neighborsConnected[id1][3] = id2
+		neighborsConnected[id2][2] = id1
+	if id1 - 1 == id2:
+		neighborsConnected[id1][2] = id2
+		neighborsConnected[id2][3] = id1
+	
+	# backward, forward
+	if id1 + getNbrRoomOnASide() == id2:
+		neighborsConnected[id1][1] = id2
+		neighborsConnected[id2][0] = id1
+	if id1 - getNbrRoomOnASide() == id2:
+		neighborsConnected[id1][0] = id2
+		neighborsConnected[id2][1] = id1
+	
+	# down, up
+	if id1 + size == id2:
+		neighborsConnected[id1][5] = id2
+		neighborsConnected[id2][4] = id1
+	if id1 - size == id2:
+		neighborsConnected[id1][4] = id2
+		neighborsConnected[id2][5] = id1
+
+# update neighborsConnected if id1 and id2 are neigbors
+# add 2 walls on the connection between roomsId given
+func disconnectNeigbors(id1, id2):
+	if not areNeigbors(id1, id2):
+		print("ERROR : cannot disconnect ", id1, " and ", id2, ", they are not Neigbors !")
+		return
+	
+	# left, right
+	if id1 + 1 == id2:
+		neighborsConnected[id1][3] = wallValue
+		neighborsConnected[id2][2] = wallValue
+	if id1 - 1 == id2:
+		neighborsConnected[id1][2] = wallValue
+		neighborsConnected[id2][3] = wallValue
+	
+	# backward, forward
+	if id1 + getNbrRoomOnASide() == id2:
+		neighborsConnected[id1][1] = wallValue
+		neighborsConnected[id2][0] = wallValue
+	if id1 - getNbrRoomOnASide() == id2:
+		neighborsConnected[id1][0] = wallValue
+		neighborsConnected[id2][1] = wallValue
+	
+	# down, up
+	if id1 + size == id2:
+		neighborsConnected[id1][5] = wallValue
+		neighborsConnected[id2][4] = wallValue
+	if id1 - size == id2:
+		neighborsConnected[id1][4] = wallValue
+		neighborsConnected[id2][5] = wallValue
+
+# check if neighborsConnected[id1] contain id2
+func areConnected(id1, id2):
+	if (id1 >= 0 && id2 >= 0 && id1 < getNbrRoom() && id2 < getNbrRoom()):
+		for i in neighborsConnected[id1]:
+			if i == id2:
+				return true
+	return false
+
+# check if neighbors[id1] contain id2
+func areNeigbors(id1, id2):
+	if (id1 >= 0 && id2 >= 0 && id1 < getNbrRoom() && id2 < getNbrRoom()):
+		for i in neighbors[id1]:
+			if i == id2:
+				return true
+	return false
 
 func getNbrRoom():
 	return size * size * size
