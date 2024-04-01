@@ -8,6 +8,8 @@ var cubeGraph
 func _ready(): # (backward, forward, left, right, down, up)
 	var size = 3
 	var gapBetweenCubeCenter = 10.5
+	# -1 = wall
+	# -2 = ~ invisible walls
 	var wallV = -1
 	var outWallV = -1
 	cubeGraph = CubeGraph.new(size, wallV, outWallV)

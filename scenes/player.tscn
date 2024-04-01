@@ -25,10 +25,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.782, 0)
 [node name="Camera3D" type="Camera3D" parent="Head"]
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.16482)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -5.70985)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/StaticBody3D"]
-transform = Transform3D(0.645365, 0, 0, 0, 0.608849, 0, 0, 0, 1, 0, -0.324826, -3.88966)
+transform = Transform3D(0.645365, 0, 0, 0, 0.608849, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("BoxMesh_onn55")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]
