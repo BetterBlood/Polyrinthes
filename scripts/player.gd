@@ -16,7 +16,7 @@ var godMode : bool
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
-	godMode = false
+	godMode = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 func _unhandled_input(event):

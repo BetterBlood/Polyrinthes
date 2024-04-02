@@ -26,8 +26,8 @@ func _ready(): # (backward, forward, left, right, down, up)
 	if cubeGraph.size == 3 :
 		# floor 1
 		cubeGraph.connectNeigbors(18, 19)
-		cubeGraph.connectNeigbors(19, 20)
 		cubeGraph.connectNeigbors(19, 10)
+		cubeGraph.connectNeigbors(19, 20)
 		cubeGraph.connectNeigbors(20, 11)
 		cubeGraph.connectNeigbors(11, 2)
 		cubeGraph.connectNeigbors(2, 1)
@@ -39,10 +39,10 @@ func _ready(): # (backward, forward, left, right, down, up)
 		
 		# floor 2
 		cubeGraph.connectNeigbors(12, 13)
-		cubeGraph.connectNeigbors(13, 14)
-		cubeGraph.connectNeigbors(14, 23)
 		cubeGraph.connectNeigbors(13, 22)
 		cubeGraph.connectNeigbors(22, 21)
+		cubeGraph.connectNeigbors(13, 14)
+		cubeGraph.connectNeigbors(14, 23)
 		cubeGraph.connectNeigbors(14, 5)
 		cubeGraph.connectNeigbors(5, 4)
 		cubeGraph.connectNeigbors(4, 3)
@@ -63,7 +63,7 @@ func _ready(): # (backward, forward, left, right, down, up)
 	for i in range(cubeGraph.getNbrRoom()):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
-		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeighbors(i)))
+		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeighbors(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
 		xCoord += gapBetweenCubeCenter
 		
 		if i%(size) == size - 1:
@@ -84,7 +84,7 @@ func _ready(): # (backward, forward, left, right, down, up)
 	for i in range(cubeGraph.getNbrRoom()):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
-		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeigborsConnection(i)))
+		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeigborsConnection(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
 		xCoord += gapBetweenCubeCenter
 		
 		if i%(size) == size - 1:

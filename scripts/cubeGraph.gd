@@ -3,6 +3,9 @@ class_name CubeGraph
 
 var neighbors = []
 var neighborsConnected = []
+var colorsIds = []
+static var colorId = 0
+
 var size: int
 var nbrNeighbors: int
 var wallValue: int
@@ -17,6 +20,7 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6
 	for i in range(getNbrRoom()):
 		neighbors.append([])
 		neighborsConnected.append([])
+		colorsIds.append(0)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 	constructNeig()
@@ -121,6 +125,10 @@ func connectNeigbors(id1, id2):
 		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neigbors !")
 		return
 	
+	colorsIds[id1] = colorId
+	colorsIds[id2] = colorId + 1
+	colorId += 1
+	
 	# left, right
 	if id1 + 1 == id2:
 		neighborsConnected[id1][3] = id2
@@ -197,3 +205,6 @@ func getNbrRoom():
 
 func getNbrRoomOnASide():
 	return size * size
+
+func getColor(id: int):
+	return colorsIds[id]
