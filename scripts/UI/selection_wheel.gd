@@ -14,6 +14,7 @@ func _draw():
 func custom_drawLines():
 	var edgeSizeLabelRadius = (bigRadius - smallRadius) / 2 + smallRadius
 	var angle = -(2 * PI) / (len(possibleEdgesSize) + 1)
+	var offset = -10
 	
 	for i in range(len(possibleEdgesSize) + 1):
 		var angleI = angle * i - PI/2
@@ -22,10 +23,13 @@ func custom_drawLines():
 		draw_string(
 			ThemeDB.fallback_font, 
 			Vector2(
-				cos(angleI + angle/2) * edgeSizeLabelRadius, 
-				sin(angleI + angle/2) * edgeSizeLabelRadius
+				cos(angleI + angle/2) * edgeSizeLabelRadius + offset, 
+				sin(angleI + angle/2) * edgeSizeLabelRadius - offset
 				), 
-			str(i + 2)
+			str(i + 2),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			-1, 
+			32
 			)
 
 func _process(_delta: float):
