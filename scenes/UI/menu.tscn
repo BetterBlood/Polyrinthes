@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://b0wgyq3xq5jsp"]
+
+[ext_resource type="PackedScene" uid="uid://cnhaml07c2vh3" path="res://scenes/UI/selection_wheel.tscn" id="1_1el8q"]
+[ext_resource type="Script" path="res://scenes/UI/UI.gd" id="2_4ugso"]
+
+[node name="Menu" type="Node"]
+
+[node name="SelectionWheel" parent="." instance=ExtResource("1_1el8q")]
+visible = false
+
+[node name="UI" type="CanvasLayer" parent="."]
+script = ExtResource("2_4ugso")

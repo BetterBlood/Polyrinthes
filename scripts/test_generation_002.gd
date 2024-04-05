@@ -94,9 +94,6 @@ func _ready(): # (backward, forward, left, right, down, up)
 		if i%(size*size) == (size*size) - 1:
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
-	
-	
-	
 
 func _process(_delta):
 	pass
