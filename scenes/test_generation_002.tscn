@@ -15,3 +15,5 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 0)
 
 [node name="Menu" parent="." instance=ExtResource("3_rp0dr")]
+
+[connection signal="generation" from="Menu" to="." method="_on_menu_generation"]

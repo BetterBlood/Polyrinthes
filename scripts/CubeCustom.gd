@@ -6,7 +6,6 @@ var distFromCenter = 5.2
 var rotationAngle = PI/2
 var wallValue = -1
 var debug = true
-var colorIdTMP = 0
 
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
 	instantiate_cube(center_pos, arr, deep, size)
@@ -74,3 +73,11 @@ func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	connectionTmp.rotation.z = rot.z
 	
 	add_child(connectionTmp)
+
+func clean():
+	for i in self.get_children():
+		self.remove_child(i)
+
+func _exit_tree():
+	self.queue_free()
+	

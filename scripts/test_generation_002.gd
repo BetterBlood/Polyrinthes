@@ -4,17 +4,23 @@ const CubeGraph := preload("res://scripts/cubeGraph.gd")
 var wall = preload("res://scenes/wall.tscn")
 var cubeGraph
 
+var size = 3
+var gapBetweenCubeCenter = 10.5
+var wallV = -1 # -1 = wall
+var outWallV = -1 # -2 = ~ invisible walls
+
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
-	var size = 3
-	var gapBetweenCubeCenter = 10.5
-	# -1 = wall
-	# -2 = ~ invisible walls
-	var wallV = -1
-	var outWallV = -1
-	cubeGraph = CubeGraph.new(size, wallV, outWallV)
+	#generate(size)
+	pass
+
+func _process(_delta):
+	pass
+
+func generate(sizeP:int):
+	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV)
 	
-	var xCoordBase = -(gapBetweenCubeCenter * (size / 2))
+	var xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2))
 	var yCoordBase = 0
 	var zCoordBase = 0
 	
@@ -66,15 +72,15 @@ func _ready(): # (backward, forward, left, right, down, up)
 		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeighbors(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(size) == size - 1:
+		if i%(sizeP) == sizeP - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
-		if i%(size*size) == (size*size) - 1:
+		if i%(sizeP*sizeP) == (sizeP*sizeP) - 1:
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 	
-	xCoordBase = -(gapBetweenCubeCenter * (size / 2)) + gapBetweenCubeCenter * (size + 1)
+	xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2)) + gapBetweenCubeCenter * (sizeP + 1)
 	yCoordBase = 0
 	zCoordBase = 0
 	xCoord = xCoordBase
@@ -87,13 +93,23 @@ func _ready(): # (backward, forward, left, right, down, up)
 		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeigborsConnection(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(size) == size - 1:
+		if i%(sizeP) == sizeP - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
-		if i%(size*size) == (size*size) - 1:
+		if i%(sizeP*sizeP) == (sizeP*sizeP) - 1:
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 
-func _process(_delta):
-	pass
+
+func _on_menu_generation(edgeSize) -> void:
+	#TODO signal -> remove prev gen -> generate new with edgeSize !
+	for i in self.get_children():
+		if (i is CubeCustom):
+			i.clean()
+			self.remove_child(i)
+	
+	if cubeGraph != null:
+		cubeGraph.clean()
+	
+	generate(edgeSize)

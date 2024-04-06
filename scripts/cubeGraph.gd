@@ -208,3 +208,9 @@ func getNbrRoomOnASide():
 
 func getColor(id: int):
 	return colorsIds[id]
+	
+func clean():
+	neighbors.clear()
+	neighborsConnected.clear()
+	colorsIds.clear()
+	colorId = 0
