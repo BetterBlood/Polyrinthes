@@ -77,6 +77,7 @@ func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 func clean():
 	for i in self.get_children():
 		self.remove_child(i)
+		i.queue_free()
 
 func _exit_tree():
 	self.queue_free()

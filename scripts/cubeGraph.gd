@@ -13,9 +13,9 @@ var outsideWallValue: int
 
 func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6):
 	size = mazeSize
+	nbrNeighbors = nbrN
 	wallValue = wallV
 	outsideWallValue = outWallV
-	nbrNeighbors = nbrN
 	
 	for i in range(getNbrRoom()):
 		neighbors.append([])
