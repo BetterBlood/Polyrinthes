@@ -4,6 +4,7 @@ class_name CubeGraph
 var neighbors = []
 var neighborsConnected = []
 var colorsIds = []
+var visited:Array[bool] = []
 static var colorId = 0
 
 var size: int
@@ -18,9 +19,10 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6
 	outsideWallValue = outWallV
 	
 	for i in range(getNbrRoom()):
+		visited.append(false)
 		neighbors.append([])
 		neighborsConnected.append([])
-		colorsIds.append(0)
+		colorsIds.append(-1)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 	constructNeig()
@@ -101,7 +103,7 @@ func replaceValueForOutsideWalls(array):
 			array[i].insert(3, outsideWallValue)
 
 # construct a copy of the neigbors for the id given
-func getNeighbors(id) -> Array[int]:
+func getNeighbors(id: int) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	#neighbors[id] = neighbors[id].filter(func(number): return number != -1)
 	#print("id: ", id, ", size: ", len(neighbors[id]), ", neighbors[id]: ", neighbors[id])
@@ -118,6 +120,13 @@ func getNeigborsConnection(id) -> Array[int]:
 		neighborsForId.append(neighborsConnected[id][i])
 	return neighborsForId
 
+func getNotVisitedNeigbors(id: int):
+	var neighborsForId : Array[int] = []
+	for i in range(nbrNeighbors):
+		if not isVisited(neighbors[id][i]):
+			neighborsForId.append(neighbors[id][i])
+	return neighborsForId
+
 # update neighborsConnected if id1 and id2 are neigbors
 # removes the 2 walls that connect roomsId given
 func connectNeigbors(id1, id2):
@@ -125,8 +134,10 @@ func connectNeigbors(id1, id2):
 		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neigbors !")
 		return
 	
-	colorsIds[id1] = colorId
-	colorsIds[id2] = colorId + 1
+	if colorsIds[id1] == -1 :
+		colorsIds[id1] = colorId
+	if colorsIds[id2] == -1 :
+		colorsIds[id2] = colorId + 1
 	colorId += 1
 	
 	# left, right
@@ -186,7 +197,7 @@ func disconnectNeigbors(id1, id2):
 
 # check if neighborsConnected[id1] contain id2
 func areConnected(id1, id2):
-	if (id1 >= 0 && id2 >= 0 && id1 < getNbrRoom() && id2 < getNbrRoom()):
+	if (isInRange(id1) && isInRange(id2)):
 		for i in neighborsConnected[id1]:
 			if i == id2:
 				return true
@@ -194,7 +205,7 @@ func areConnected(id1, id2):
 
 # check if neighbors[id1] contain id2
 func areNeigbors(id1, id2):
-	if (id1 >= 0 && id2 >= 0 && id1 < getNbrRoom() && id2 < getNbrRoom()):
+	if (isInRange(id1) && isInRange(id2)):
 		for i in neighbors[id1]:
 			if i == id2:
 				return true
@@ -208,9 +219,20 @@ func getNbrRoomOnASide():
 
 func getColor(id: int):
 	return colorsIds[id]
-	
+
+func isInRange(id: int):
+	return id < getNbrRoom() && id >= 0
+
+func isVisited(id: int):
+	return not isInRange(id) || visited[id]
+
+func setVisited(id: int, value: bool = true):
+	if not isInRange(id): return
+	visited[id] = value
+
 func clean():
 	neighbors.clear()
 	neighborsConnected.clear()
 	colorsIds.clear()
 	colorId = 0
+	visited.clear()

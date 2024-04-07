@@ -5,7 +5,10 @@ var wall = preload("res://scenes/wall.tscn")
 var distFromCenter = 5.2 
 var rotationAngle = PI/2
 var wallValue = -1
+var outSideWallValue = -2
+
 var debug = true
+var showWall = true
 
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
 	instantiate_cube(center_pos, arr, deep, size)
@@ -16,36 +19,36 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: f
 	#print(deep/size, " ", 250 - ratio, " ", ratio)
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(0,0,distFromCenter), Vector3(-PI,0,0))
-	elif debug:
+	elif debug && arr[0] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(-PI,0,0), color)
 	if (arr[1] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(0,0,-distFromCenter), Vector3(0,0,0))
-	elif debug:
+	elif debug && arr[1] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(0,0,0), color)
 	
 	if (arr[2] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(-distFromCenter,0,0), Vector3(0,rotationAngle,0))
-	elif debug:
+	elif debug && arr[2] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(distFromCenter,0,0), Vector3(0,-rotationAngle,0))
-	elif debug:
+	elif debug && arr[3] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
 	
 	if (arr[4] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(0,-distFromCenter,0), Vector3(rotationAngle,0,0))
-	elif debug:
+	elif debug && arr[4] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(-rotationAngle,0,0), color)
 	if (arr[5] == wallValue):
-		if not debug:
+		if showWall:
 			instanciate_wall(center_pos, Vector3(0,distFromCenter,0), Vector3(-rotationAngle,0,0))
-	elif debug:
+	elif debug && arr[5] != outSideWallValue:
 		instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
 
 func instanciate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):

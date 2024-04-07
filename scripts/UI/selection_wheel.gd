@@ -11,9 +11,24 @@ var edgeSize = 0
 func _draw():
 	draw_circle(Vector2.ZERO, bigRadius, baseColor)
 	draw_arc(Vector2.ZERO, smallRadius, 0, 2*PI, 64, Color.DARK_GOLDENROD, lineWidth, true)
-	custom_drawLines()
+	drawParts()
+	var cancelButtonLength = 0.7
+	
+	draw_line(
+		Vector2.from_angle(-PI/4) * smallRadius * cancelButtonLength, 
+		Vector2.from_angle(3*PI/4) * smallRadius* cancelButtonLength, 
+		Color.DARK_GOLDENROD, 
+		lineWidth
+	)
+	
+	draw_line(
+		Vector2.from_angle(PI/4) * smallRadius * cancelButtonLength, 
+		Vector2.from_angle(-3*PI/4) * smallRadius* cancelButtonLength, 
+		Color.DARK_GOLDENROD, 
+		lineWidth
+	)
 
-func custom_drawLines():
+func drawParts():
 	var edgeSizeLabelRadius = (bigRadius - smallRadius) / 2 + smallRadius
 	var angle = -(2 * PI) / (len(possibleEdgesSize) + 1)
 	var offset = -10
@@ -27,7 +42,6 @@ func custom_drawLines():
 			var smallArc = PackedVector2Array()
 			var bigArc = PackedVector2Array()
 			var pointsPerArc = 32
-			
 			
 			for j in range(pointsPerArc + 1):
 				var pointAngle = -(angleI + j*angle/pointsPerArc)
@@ -64,9 +78,8 @@ func _process(_delta: float):
 		#print((tmp + len(possibleEdgesSize) + 1)%(len(possibleEdgesSize) + 1) + 2)
 		edgeSize = (tmp + len(possibleEdgesSize) + 1)%(len(possibleEdgesSize) + 1) + 2
 	
-	
 	queue_redraw()
-	
+
 func close():
 	hide()
 	return edgeSize
