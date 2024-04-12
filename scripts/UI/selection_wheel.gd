@@ -14,6 +14,7 @@ func _draw():
 	drawParts()
 	var cancelButtonLength = 0.7
 	
+	# X in the middle (cancel wheel)
 	draw_line(
 		Vector2.from_angle(-PI/4) * smallRadius * cancelButtonLength, 
 		Vector2.from_angle(3*PI/4) * smallRadius* cancelButtonLength, 

@@ -102,7 +102,7 @@ func replaceValueForOutsideWalls(array):
 			array[i].remove_at(3)
 			array[i].insert(3, outsideWallValue)
 
-# construct a copy of the neigbors for the id given
+# construct a copy of the neighbors for the id given
 func getNeighbors(id: int) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	#neighbors[id] = neighbors[id].filter(func(number): return number != -1)
@@ -113,27 +113,34 @@ func getNeighbors(id: int) -> Array[int]:
 	
 	return neighborsForId
 
-# construct a copy of the connected neigbors for the id given
-func getNeigborsConnection(id) -> Array[int]:
+# construct a copy of the connected neighbors for the id given
+func getNeighborsConnection(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	for i in range(nbrNeighbors):
 		neighborsForId.append(neighborsConnected[id][i])
 	return neighborsForId
 
-func getNotVisitedNeigbors(id: int):
+func getNotVisitedNeighbors(id: int, only2D:bool = false):
 	var neighborsForId : Array[int] = []
-	for i in range(nbrNeighbors):
+	var nbrNeighborsNeeded = nbrNeighbors
+	if only2D :
+		nbrNeighborsNeeded = getNbrNeighborsFor2D()
+	for i in range(nbrNeighborsNeeded):
 		if not isVisited(neighbors[id][i]):
 			neighborsForId.append(neighbors[id][i])
 	return neighborsForId
 
-# update neighborsConnected if id1 and id2 are neigbors
+func getNbrNeighborsFor2D():
+	return nbrNeighbors - 2
+
+# update neighborsConnected if id1 and id2 are neighbors
 # removes the 2 walls that connect roomsId given
-func connectNeigbors(id1, id2):
-	if not areNeigbors(id1, id2):
-		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neigbors !")
+func connectNeighbors(id1, id2):
+	if not areNeighbors(id1, id2):
+		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neighbors !")
 		return
 	
+	# first color instead of overwrite color
 	if colorsIds[id1] == -1 :
 		colorsIds[id1] = colorId
 	if colorsIds[id2] == -1 :
@@ -164,11 +171,11 @@ func connectNeigbors(id1, id2):
 		neighborsConnected[id1][4] = id2
 		neighborsConnected[id2][5] = id1
 
-# update neighborsConnected if id1 and id2 are neigbors
+# update neighborsConnected if id1 and id2 are neighbors
 # add 2 walls on the connection between roomsId given
-func disconnectNeigbors(id1, id2):
-	if not areNeigbors(id1, id2):
-		print("ERROR : cannot disconnect ", id1, " and ", id2, ", they are not Neigbors !")
+func disconnectNeighbors(id1, id2):
+	if not areNeighbors(id1, id2):
+		print("ERROR : cannot disconnect ", id1, " and ", id2, ", they are not Neighbors !")
 		return
 	
 	# left, right
@@ -204,7 +211,7 @@ func areConnected(id1, id2):
 	return false
 
 # check if neighbors[id1] contain id2
-func areNeigbors(id1, id2):
+func areNeighbors(id1, id2):
 	if (isInRange(id1) && isInRange(id2)):
 		for i in neighbors[id1]:
 			if i == id2:
@@ -229,6 +236,12 @@ func isVisited(id: int):
 func setVisited(id: int, value: bool = true):
 	if not isInRange(id): return
 	visited[id] = value
+
+func hasUpNeighbors(id: int):
+	return neighbors[id][5] != -1
+
+func getUpNeighbors(id: int):
+	return neighbors[id][5]
 
 func clean():
 	neighbors.clear()

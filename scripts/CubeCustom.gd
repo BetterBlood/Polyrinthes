@@ -8,9 +8,10 @@ var wallValue = -1
 var outSideWallValue = -2
 
 var debug = true
-var showWall = true
+var showWall = false
 
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
+	#call_deferred("instantiate_cube", center_pos, arr, deep, size)
 	instantiate_cube(center_pos, arr, deep, size)
 
 func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: float):
@@ -53,28 +54,21 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: f
 
 func instanciate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	var wallTmp = wall.instantiate()
-	wallTmp.position.x = center_pos.x + pos.x
-	wallTmp.position.y = center_pos.y + pos.y
-	wallTmp.position.z = center_pos.z + pos.z
 	
-	wallTmp.rotation.x = rot.x
-	wallTmp.rotation.y = rot.y
-	wallTmp.rotation.z = rot.z
+	wallTmp.set_position(center_pos + pos)
+	wallTmp.set_rotation(rot)
+	
+	#call_deferred("add_child", wallTmp)
 	add_child(wallTmp)
 
 func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	var connectionTmp = connection.instantiate()
 	
 	connectionTmp.get_child(0).mesh.material.albedo_color = Color(color.x, color.y, color.z, 1)
+	connectionTmp.set_position(center_pos)
+	connectionTmp.set_rotation(rot)
 	
-	connectionTmp.position.x = center_pos.x
-	connectionTmp.position.y = center_pos.y
-	connectionTmp.position.z = center_pos.z
-	
-	connectionTmp.rotation.x = rot.x
-	connectionTmp.rotation.y = rot.y
-	connectionTmp.rotation.z = rot.z
-	
+	#call_deferred("add_child", connectionTmp)
 	add_child(connectionTmp)
 
 func clean():
