@@ -11,7 +11,6 @@ func _process(_delta: float) -> void:
 		#TODO signal -> remove prev gen -> generate new with edgeSize !
 		var edgeSize = $"../SelectionWheel".close()
 		if edgeSize != 0 :
-			print("emit generationwith edgeSize: ", edgeSize, ", in UI.gd")
 			generation.emit(edgeSize)
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 

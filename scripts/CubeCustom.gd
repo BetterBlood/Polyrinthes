@@ -9,15 +9,36 @@ var outSideWallValue = -2
 
 var debug = true
 var showWall = false
+var triColor = true
 
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
 	#call_deferred("instantiate_cube", center_pos, arr, deep, size)
 	instantiate_cube(center_pos, arr, deep, size)
 
 func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: float):
-	var ratio = (deep/(size-1)) * 250.
-	var color = Vector3(250 - ratio, 0, ratio).normalized()
-	#print(deep/size, " ", 250 - ratio, " ", ratio)
+	var ratio = (deep/(size-1)) * 255.
+	
+	var redRatio = 0
+	var greenRatio = 0
+	var blueRatio = 0
+	
+	if deep < size/2. :
+		redRatio = 1 - (deep/((size-1)/2.))
+		greenRatio = (deep/((size-1)/2.))/2
+		blueRatio = 0
+		#print(deep, " ", redRatio)
+	else :
+		redRatio = 0
+		greenRatio = 1 - (deep/((size-1)/2.))/2
+		blueRatio = 1 - (2 - (deep/((size-1)/2.)))
+		#print(deep, " ", greenRatio, " ", blueRatio)
+	
+	var color = Vector3(255 - ratio, 0, ratio).normalized()
+	
+	if triColor:
+		color = Vector3(redRatio, greenRatio, blueRatio).normalized()
+	
+	#print(deep/size, " ", 255 - ratio, " ", ratio)
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if showWall:

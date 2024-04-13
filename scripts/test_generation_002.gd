@@ -39,7 +39,7 @@ func generate(sizeP:int):
 	
 	print("\nfirst generation")
 	for i in range(cubeGraph.getNbrRoom()):
-		if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
+		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		
@@ -48,7 +48,7 @@ func generate(sizeP:int):
 			cubeGraph.getNeighbors(i),
 			cubeGraph.getColor(i), 
 			cubeGraph.getNbrRoom()))
-
+		
 		xCoord += gapBetweenCubeCenter
 		
 		if i%(sizeP) == sizeP - 1:
@@ -66,9 +66,9 @@ func generate(sizeP:int):
 	yCoord = yCoordBase
 	zCoord = zCoordBase
 	
-	print("\nsecond generation")
+	print("100%\n\nsecond generation")
 	for i in range(cubeGraph.getNbrRoom()):
-		if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
+		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeighborsConnection(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
