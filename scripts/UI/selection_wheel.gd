@@ -1,6 +1,6 @@
 @tool
 extends Control
-var possibleEdgesSize = range(2, 10) # center for cancel and 1 cube is useless
+var possibleEdgesSize = range(2, 15) # center for cancel and 1 cube is useless
 var lineWidth = 3
 @export var bigRadius: int = 250
 @export var smallRadius: int = 80
