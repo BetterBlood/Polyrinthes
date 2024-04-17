@@ -7,8 +7,8 @@ var rotationAngle = PI/2
 var wallValue = -1
 var outSideWallValue = -2
 
-var debug = true
-var showWall = false
+var debug = false
+var showWall = true
 var triColor = true
 
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
