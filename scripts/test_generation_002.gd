@@ -38,6 +38,7 @@ func generate(sizeP:int):
 	var zCoord = zCoordBase
 	
 	print("\nfirst generation")
+	var time_start = Time.get_ticks_msec()
 	for i in range(cubeGraph.getNbrRoom()):
 		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
@@ -65,8 +66,9 @@ func generate(sizeP:int):
 	xCoord = xCoordBase
 	yCoord = yCoordBase
 	zCoord = zCoordBase
-	
-	print("100%\n\nsecond generation")
+	var time_end = Time.get_ticks_msec()
+	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
+	time_start = Time.get_ticks_msec()
 	for i in range(cubeGraph.getNbrRoom()):
 		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
@@ -87,8 +89,8 @@ func generate(sizeP:int):
 		# could send errors (try to delete not existing node)
 		# await get_tree().create_timer(0.001).timeout 
 		
-	
-	print("100%")
+	time_end = Time.get_ticks_msec()
+	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 
 func _on_menu_generation(edgeSize) -> void:
 	for i in self.get_children():
