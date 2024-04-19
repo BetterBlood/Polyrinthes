@@ -4,6 +4,7 @@ class_name CubeGraph
 var neighbors = []
 var neighborsConnected = []
 var colorsIds = []
+var lastVisited = 0
 var visited:Array[bool] = []
 static var colorId = 0
 
@@ -145,6 +146,7 @@ func connectNeighbors(id1, id2):
 		colorsIds[id1] = colorId
 	if colorsIds[id2] == -1 :
 		colorsIds[id2] = colorId + 1
+		lastVisited = colorId + 1
 	colorId += 1
 	
 	# left, right
@@ -248,4 +250,5 @@ func clean():
 	neighborsConnected.clear()
 	colorsIds.clear()
 	colorId = 0
+	lastVisited = 0
 	visited.clear()

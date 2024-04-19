@@ -2,6 +2,7 @@ extends Node
 class_name CubeCustom
 var connection = preload("res://scenes/connection.tscn")
 var wall = preload("res://scenes/wall.tscn")
+var sphere = preload("res://scenes/sphere.tscn")
 var distFromCenter = 5.2 
 var rotationAngle = PI/2
 var wallValue = -1
@@ -14,6 +15,17 @@ var triColor = true
 func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
 	#call_deferred("instantiate_cube", center_pos, arr, deep, size)
 	instantiate_cube(center_pos, arr, deep, size)
+	if debug:
+		if deep == 0:
+			var sphereStart = sphere.instantiate()
+			sphereStart.get_child(0).mesh.material.albedo_color = Color(1, 1, 1, 1)
+			sphereStart.set_position(center_pos)
+			add_child(sphereStart)
+		elif deep == size:
+			var sphereEnd = sphere.instantiate()
+			sphereEnd.get_child(0).mesh.material.albedo_color = Color(0, 0, 0, 1)
+			sphereEnd.set_position(center_pos)
+			add_child(sphereEnd)
 
 func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: float):
 	var ratio = (deep/(size-1)) * 255.

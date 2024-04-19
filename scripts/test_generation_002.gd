@@ -22,12 +22,13 @@ func _process(_delta):
 
 func generate(sizeP:int):
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV)
-		
+	
 	print("cubeGraph.getNbrRoom(): ", cubeGraph.getNbrRoom())
 	
 #	if (cubeGraph.size == 3): exampleDebugforsize3()
 	
-	createPath_deepWay(0) # odd size, middle: cubeGraph.getNbrRoom()/2 
+	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
+	createPath_deepWay(0)
 	
 	var xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2))
 	var yCoordBase = 0
@@ -48,7 +49,7 @@ func generate(sizeP:int):
 			Vector3(xCoord,yCoord,zCoord), 
 			cubeGraph.getNeighbors(i),
 			cubeGraph.getColor(i), 
-			cubeGraph.getNbrRoom()))
+			cubeGraph.lastVisited))
 		
 		xCoord += gapBetweenCubeCenter
 		
@@ -73,7 +74,14 @@ func generate(sizeP:int):
 		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
-		add_child(CubeCustom.new(Vector3(xCoord,yCoord,zCoord), cubeGraph.getNeighborsConnection(i), cubeGraph.getColor(i), cubeGraph.getNbrRoom()))
+		add_child(
+			CubeCustom.new(
+				Vector3(xCoord,yCoord,zCoord), 
+				cubeGraph.getNeighborsConnection(i), 
+				cubeGraph.getColor(i), 
+				cubeGraph.lastVisited
+			)
+		)
 		xCoord += gapBetweenCubeCenter
 		
 		if i%(sizeP) == sizeP - 1:
@@ -146,7 +154,7 @@ func createPath_deepWay(beginId: int = 0):
 	var neighborsToExplo = []
 	var stack = []
 	stack.append(beginId)
-	cubeGraph.setVisited(beginId)
+	cubeGraph.setVisited(beginId) # not really interesting to comment this line
 	
 	var currId = beginId
 	
@@ -214,6 +222,43 @@ func createPath_deepWay_layer_by_layer(beginId: int = 0):
 	
 	stack.append(beginId)
 	cubeGraph.setVisited(beginId)
+
+	var currId = beginId
+	var lastUpdated = currId
+
+	while not stack.is_empty():
+		neighborsToExplo.clear()
+		# with "true" get only neighbors on the same layer
+		neighborsToExplo.append_array(cubeGraph.getNotVisitedNeighbors(currId, true))
+		#print(neighborsToExplo)
+		
+		if len(neighborsToExplo) == 0:
+			currId = stack.pop_back()
+			# when all nodes are allready visited (stack empty) and we are 
+			# back to the begining, connect the last updated node (means the 
+			# last dead end) with the upper layer if exist
+			if stack.is_empty() && cubeGraph.hasUpNeighbors(lastUpdated):
+				stack.append(cubeGraph.getUpNeighbors(lastUpdated))
+				cubeGraph.connectNeighbors(lastUpdated, stack.back())
+				cubeGraph.setVisited(stack.back())
+				currId = stack.back()
+			continue
+		
+		stack.append(currId)
+		neighborsToExplo.shuffle()
+		
+		var newId = neighborsToExplo.pop_front()
+		cubeGraph.connectNeighbors(currId, newId)
+		cubeGraph.setVisited(newId)
+		currId = newId
+		lastUpdated = currId
+
+func createPath_deepWay_layer_by_layer_alt_1(beginId: int = 0):
+	var neighborsToExplo = []
+	var stack = []
+	
+	stack.append(beginId)
+	#cubeGraph.setVisited(beginId) # uncomment this to have a linear begin
 
 	var currId = beginId
 	var lastUpdated = currId
