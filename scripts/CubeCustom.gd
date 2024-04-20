@@ -12,45 +12,44 @@ var debug = true
 var showWall = false
 var triColor = true
 
-func _init(center_pos: Vector3, arr: Array[int], deep: float, size: float):
-	#call_deferred("instantiate_cube", center_pos, arr, deep, size)
-	instantiate_cube(center_pos, arr, deep, size)
+func _init(center_pos: Vector3, arr: Array[int], depth: float, deepest: float):
+	#call_deferred("instantiate_cube", center_pos, arr, depth, deepest)
+	instantiate_cube(center_pos, arr, depth, deepest)
 	if debug:
-		if deep == 0:
+		if depth == 0:
 			var sphereStart = sphere.instantiate()
 			sphereStart.get_child(0).mesh.material.albedo_color = Color(1, 1, 1, 1)
 			sphereStart.set_position(center_pos)
 			add_child(sphereStart)
-		elif deep == size:
+		elif depth == deepest:
 			var sphereEnd = sphere.instantiate()
 			sphereEnd.get_child(0).mesh.material.albedo_color = Color(0, 0, 0, 1)
 			sphereEnd.set_position(center_pos)
 			add_child(sphereEnd)
 
-func instantiate_cube(center_pos: Vector3, arr: Array[int], deep: float, size: float):
-	var ratio = (deep/(size-1)) * 255.
-	
+func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: float):
+	var ratio = (depth/(size-1.))
 	var redRatio = 0
 	var greenRatio = 0
 	var blueRatio = 0
 	
-	if deep < size/2. :
-		redRatio = 1 - (deep/((size-1)/2.))
-		greenRatio = (deep/((size-1)/2.))/2
+	if depth < size/2. :
+		redRatio = 1 - (depth/((size-1)/2.))
+		greenRatio = (depth/((size-1)/2.))/2
 		blueRatio = 0
-		#print(deep, " ", redRatio)
+		#print(depth, " ", redRatio)
 	else :
 		redRatio = 0
-		greenRatio = 1 - (deep/((size-1)/2.))/2
-		blueRatio = 1 - (2 - (deep/((size-1)/2.)))
-		#print(deep, " ", greenRatio, " ", blueRatio)
+		greenRatio = 1 - (depth/((size-1)/2.))/2
+		blueRatio = 1 - (2 - (depth/((size-1)/2.)))
+		#print(depth, " ", greenRatio, " ", blueRatio)
 	
-	var color = Vector3(255 - ratio, 0, ratio).normalized()
+	var color = Vector3(1 - ratio, 0, ratio).normalized()
 	
 	if triColor:
 		color = Vector3(redRatio, greenRatio, blueRatio).normalized()
 	
-	#print(deep/size, " ", 255 - ratio, " ", ratio)
+	#print(depth/size, " ", 1 - ratio, " ", ratio)
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if showWall:

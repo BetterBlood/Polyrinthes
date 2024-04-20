@@ -4,26 +4,33 @@ class_name CubeGraph
 var neighbors = []
 var neighborsConnected = []
 var colorsIds = []
+var depths = []
 var lastVisited = 0
+var deepest = 0
 var visited:Array[bool] = []
+var processing:Array[bool] = []
 static var colorId = 0
+var colorByDepth = true
 
 var size: int
 var nbrNeighbors: int
 var wallValue: int
 var outsideWallValue: int
 
-func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6):
+func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6, byDepthColor: bool = true):
 	size = mazeSize
 	nbrNeighbors = nbrN
 	wallValue = wallV
 	outsideWallValue = outWallV
+	colorByDepth = byDepthColor
 	
 	for i in range(getNbrRoom()):
 		visited.append(false)
+		processing.append(false)
 		neighbors.append([])
 		neighborsConnected.append([])
 		colorsIds.append(-1)
+		depths.append(-1)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 	constructNeig()
@@ -131,6 +138,26 @@ func getNotVisitedNeighbors(id: int, only2D:bool = false):
 			neighborsForId.append(neighbors[id][i])
 	return neighborsForId
 
+func getNotProcessingNeighbors(id: int, only2D:bool = false):
+	var neighborsForId : Array[int] = []
+	var nbrNeighborsNeeded = nbrNeighbors
+	if only2D :
+		nbrNeighborsNeeded = getNbrNeighborsFor2D()
+	for i in range(nbrNeighborsNeeded):
+		if not isProcessing(neighbors[id][i]):
+			neighborsForId.append(neighbors[id][i])
+	return neighborsForId
+
+func getNotProcNotVisiNeighbors(id: int, only2D:bool = false):
+	var neighborsForId : Array[int] = []
+	var nbrNeighborsNeeded = nbrNeighbors
+	if only2D :
+		nbrNeighborsNeeded = getNbrNeighborsFor2D()
+	for i in range(nbrNeighborsNeeded):
+		if not isProcessing(neighbors[id][i]) and not isVisited(neighbors[id][i]):
+			neighborsForId.append(neighbors[id][i])
+	return neighborsForId
+
 func getNbrNeighborsFor2D():
 	return nbrNeighbors - 2
 
@@ -141,13 +168,21 @@ func connectNeighbors(id1, id2):
 		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neighbors !")
 		return
 	
-	# first color instead of overwrite color
-	if colorsIds[id1] == -1 :
-		colorsIds[id1] = colorId
-	if colorsIds[id2] == -1 :
-		colorsIds[id2] = colorId + 1
-		lastVisited = colorId + 1
-	colorId += 1
+	# first color instead of overwrite color and first approach to debug with colors
+	if not colorByDepth :
+		if colorsIds[id1] == -1 :
+			colorsIds[id1] = colorId
+		if colorsIds[id2] == -1 :
+			#colorId += 1
+			colorsIds[id2] = colorId + 1
+			lastVisited = colorId + 1
+		colorId += 1
+#	else :
+#		if colorsIds[id1] == -1 :
+#			colorsIds[id1] = depths[id1]
+#		if colorsIds[id2] == -1 :
+#			colorId += 1
+#			colorsIds[id2] = depths[id2]
 	
 	# left, right
 	if id1 + 1 == id2:
@@ -227,7 +262,25 @@ func getNbrRoomOnASide():
 	return size * size
 
 func getColor(id: int):
-	return colorsIds[id]
+	if isInRange(id):
+		return colorsIds[id]
+	return -1
+
+func getDepth(id :int):
+	if not isInRange(id):
+		return -1
+	return depths[id]
+
+func setDepth(id: int, depth: int):
+	if isInRange(id):
+		depths[id] = depth 
+		if deepest < depth :
+			deepest = depth
+			lastVisited = deepest
+			#print("lastVisited:", lastVisited)
+
+func setColorFromDepth():
+	colorsIds = depths.duplicate()
 
 func isInRange(id: int):
 	return id < getNbrRoom() && id >= 0
@@ -238,6 +291,13 @@ func isVisited(id: int):
 func setVisited(id: int, value: bool = true):
 	if not isInRange(id): return
 	visited[id] = value
+
+func isProcessing(id: int):
+	return not isInRange(id) || processing[id]
+
+func setProcessing(id: int, value: bool = true):
+	if not isInRange(id): return
+	processing[id] = value
 
 func hasUpNeighbors(id: int):
 	return neighbors[id][5] != -1
@@ -251,4 +311,7 @@ func clean():
 	colorsIds.clear()
 	colorId = 0
 	lastVisited = 0
+	deepest = 0
 	visited.clear()
+	processing.clear()
+	depths.clear()

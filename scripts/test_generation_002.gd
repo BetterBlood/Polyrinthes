@@ -21,14 +21,24 @@ func _process(_delta):
 	pass
 
 func generate(sizeP:int):
-	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV)
+	var colorBasedOnDepth = true
+	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
 	
 	print("cubeGraph.getNbrRoom(): ", cubeGraph.getNbrRoom())
 	
 #	if (cubeGraph.size == 3): exampleDebugforsize3()
 	
+	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
-	createPath_deepWay(0)
+	#createPath_deepWay(beginId) # colorBasedOnDepth should be false or TODO
+	#createPath_deepWay_layer_by_layer(beginId) # colorBasedOnDepth should be false or TODO
+	#createPath_deepWay_layer_by_layer_alt_1(beginId) # colorBasedOnDepth should be false or TODO
+	createPath_deepWay_layer_by_layer_alt_2(beginId)
+	
+	
+	
+	if colorBasedOnDepth:
+		cubeGraph.setColorFromDepth()
 	
 	var xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2))
 	var yCoordBase = 0
@@ -98,6 +108,8 @@ func generate(sizeP:int):
 		# await get_tree().create_timer(0.001).timeout 
 		
 	time_end = Time.get_ticks_msec()
+#	print(cubeGraph.colorsIds)
+#	print(cubeGraph.depths)
 	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 
 func _on_menu_generation(edgeSize) -> void:
@@ -153,8 +165,10 @@ func exampleDebugforsize3():
 func createPath_deepWay(beginId: int = 0):
 	var neighborsToExplo = []
 	var stack = []
+	
 	stack.append(beginId)
 	cubeGraph.setVisited(beginId) # not really interesting to comment this line
+	cubeGraph.setDepth(beginId, 0)
 	
 	var currId = beginId
 	
@@ -289,6 +303,76 @@ func createPath_deepWay_layer_by_layer_alt_1(beginId: int = 0):
 		cubeGraph.setVisited(newId)
 		currId = newId
 		lastUpdated = currId
+
+# connection between layer is always on the deppest room from layer beginning
+func createPath_deepWay_layer_by_layer_alt_2(beginId: int = 0):
+	var neighborsToExplo = []
+	var stack = []
+	var currId = beginId
+	var lastUpdated = currId
+	var depth:int = 0
+	var deepestId = 0
+	var currMaxDepth = 0
+	var deadendReached = false
+	
+	stack.append(currId)
+	cubeGraph.setProcessing(currId)
+	#print("d-setDepth(", currId, ",", depth, ")")
+	cubeGraph.setDepth(currId, depth)
+	
+	while not stack.is_empty():
+		neighborsToExplo.clear()
+		# with "true" get only neighbors on the same layer
+		neighborsToExplo.append_array(cubeGraph.getNotProcNotVisiNeighbors(currId, true))
+		
+		if len(neighborsToExplo) == 0:
+			deadendReached = true
+			if currMaxDepth < depth :
+				currMaxDepth = depth
+				deepestId = currId
+				#print("dead end: ", deepestId, " ", currMaxDepth)
+				if cubeGraph.getDepth(currId) == -1:
+					#print("e-setDepth(", currId, ",", depth, ")")
+					cubeGraph.setDepth(currId, depth)
+			
+			currId = stack.pop_back()
+			cubeGraph.setVisited(currId)
+			#cubeGraph.setDepth(currId, depth)
+			depth -= 1
+			
+			# when all nodes are allready visited (stack empty) and we are 
+			# back to the begining, connect the last updated node (means the 
+			# last dead end) with the upper layer if exist
+			if stack.is_empty() && cubeGraph.hasUpNeighbors(deepestId):
+				stack.append(cubeGraph.getUpNeighbors(deepestId))
+				cubeGraph.connectNeighbors(deepestId, stack.back())
+				cubeGraph.setVisited(stack.back())
+				currId = stack.back()
+				
+				depth = cubeGraph.getDepth(deepestId)
+				depth += 1
+				#print("c-setDepth(", currId, ",", depth, ")")
+				cubeGraph.setDepth(currId, depth)
+				deepestId = currId
+				currMaxDepth = depth
+			continue
+		elif deadendReached:
+			depth += 1
+			deadendReached = false
+		
+		neighborsToExplo.shuffle()
+		
+		var newId = neighborsToExplo.pop_front()
+		cubeGraph.connectNeighbors(currId, newId)
+		cubeGraph.setProcessing(newId)
+		currId = newId
+		lastUpdated = newId
+		depth += 1
+		if cubeGraph.getDepth(currId) == -1:
+			#print("n-setDepth(", currId, ",", depth, ")")
+			cubeGraph.setDepth(currId, depth)
+		stack.append(currId)
+	
 
 func createPath_wideWay(beginId: int = 0):
 	pass
