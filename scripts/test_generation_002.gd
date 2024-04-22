@@ -23,8 +23,11 @@ func _process(_delta):
 func generate(sizeP:int):
 	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
+	var size = cubeGraph.size
+	var sizeFace = cubeGraph.getNbrRoomOnASide()
+	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	print("cubeGraph.getNbrRoom(): ", cubeGraph.getNbrRoom())
+	print("cubeGraph.getNbrRoom(): ", sizeTotal)
 	
 #	if (cubeGraph.size == 3): exampleDebugforsize3()
 	
@@ -50,7 +53,7 @@ func generate(sizeP:int):
 	
 	print("\nfirst generation")
 	var time_start = Time.get_ticks_msec()
-	for i in range(cubeGraph.getNbrRoom()):
+	for i in range(sizeTotal):
 		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
@@ -63,15 +66,15 @@ func generate(sizeP:int):
 		
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(sizeP) == sizeP - 1:
+		if i%(size) == size - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
-		if i%(sizeP*sizeP) == (sizeP*sizeP) - 1:
+		if i%(sizeFace) == (sizeFace) - 1:
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 	
-	xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2)) + gapBetweenCubeCenter * (sizeP + 1)
+	xCoordBase = -(gapBetweenCubeCenter * (size / 2)) + gapBetweenCubeCenter * (size + 1)
 	yCoordBase = 0
 	zCoordBase = 0
 	xCoord = xCoordBase
@@ -80,8 +83,8 @@ func generate(sizeP:int):
 	var time_end = Time.get_ticks_msec()
 	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
 	time_start = Time.get_ticks_msec()
-	for i in range(cubeGraph.getNbrRoom()):
-		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
+	for i in range(sizeTotal):
+		#if i%size == size - 1: print((100*i)/sizeTotal, "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		add_child(
@@ -94,11 +97,11 @@ func generate(sizeP:int):
 		)
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(sizeP) == sizeP - 1:
+		if i%(size) == size - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
-		if i%(sizeP*sizeP) == (sizeP*sizeP) - 1:
+		if i%(sizeFace) == (sizeFace) - 1:
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 		
