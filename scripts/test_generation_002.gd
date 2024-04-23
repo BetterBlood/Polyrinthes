@@ -27,7 +27,7 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	print("cubeGraph.getNbrRoom(): ", sizeTotal)
+	
 	
 #	if (cubeGraph.size == 3): exampleDebugforsize3()
 	
@@ -39,9 +39,13 @@ func generate(sizeP:int):
 	createPath_deepWay_layer_by_layer_alt_2(beginId)
 	
 	
+	var depthReached = cubeGraph.lastVisited
+	
+	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
 	
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
+		
 	
 	var xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2))
 	var yCoordBase = 0
@@ -62,7 +66,7 @@ func generate(sizeP:int):
 			Vector3(xCoord,yCoord,zCoord), 
 			cubeGraph.getNeighbors(i),
 			cubeGraph.getColor(i), 
-			cubeGraph.lastVisited))
+			depthReached))
 		
 		xCoord += gapBetweenCubeCenter
 		
@@ -92,7 +96,7 @@ func generate(sizeP:int):
 				Vector3(xCoord,yCoord,zCoord), 
 				cubeGraph.getNeighborsConnection(i), 
 				cubeGraph.getColor(i), 
-				cubeGraph.lastVisited
+				depthReached
 			)
 		)
 		xCoord += gapBetweenCubeCenter

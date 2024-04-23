@@ -4,8 +4,12 @@
 ### Génération de labyrinthe en 3D
 
 Débug mesh en couleur :
+#### Débug, taille de 3
 ![ColoredDebugImage](images/ColoredDebug.PNG)
+#### Débug, génération en 3D
 ![TriColoredDebugImage](images/TriColoredDebug.PNG)
+#### Débug, étage par étage, taille de 10
+![TriColoredDebugLayerByLayerImage](images/TriColoredDebugLayerByLayer.PNG)
 
 WIP : Différentes sorte de générations
 
