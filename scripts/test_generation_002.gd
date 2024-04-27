@@ -23,13 +23,13 @@ func _process(_delta):
 func generate(sizeP:int):
 	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
-	var size = cubeGraph.size
+	var sizeBase = cubeGraph.size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
 	
 	
-#	if (cubeGraph.size == 3): exampleDebugforsize3()
+#	if (sizeBase == 3): exampleDebugforsize3()
 	
 	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
@@ -50,7 +50,7 @@ func generate(sizeP:int):
 		cubeGraph.setColorFromDepth()
 		
 	
-	var xCoordBase = -(gapBetweenCubeCenter * (sizeP / 2))
+	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
 	var yCoordBase = 0
 	var zCoordBase = 0
 	
@@ -73,7 +73,7 @@ func generate(sizeP:int):
 		
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(size) == size - 1:
+		if i%(sizeBase) == sizeBase - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
@@ -81,7 +81,7 @@ func generate(sizeP:int):
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 	
-	xCoordBase = -(gapBetweenCubeCenter * (size / 2)) + gapBetweenCubeCenter * (size + 1)
+	xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2)) + gapBetweenCubeCenter * (sizeBase + 1)
 	yCoordBase = 0
 	zCoordBase = 0
 	xCoord = xCoordBase
@@ -91,7 +91,7 @@ func generate(sizeP:int):
 	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
 	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal):
-		#if i%size == size - 1: print((100*i)/sizeTotal, "%")
+		#if i%sizeBase == sizeBase - 1: print((100*i)/sizeTotal, "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		add_child(
@@ -104,7 +104,7 @@ func generate(sizeP:int):
 		)
 		xCoord += gapBetweenCubeCenter
 		
-		if i%(size) == size - 1:
+		if i%(sizeBase) == sizeBase - 1:
 			xCoord = xCoordBase
 			yCoord += gapBetweenCubeCenter
 		
