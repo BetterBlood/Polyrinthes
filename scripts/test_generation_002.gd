@@ -27,7 +27,9 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	
+	var debug:bool = true
+	var showWall:bool = false
+	var triColor:bool = true
 	
 #	if (sizeBase == 3): exampleDebugforsize3()
 	
@@ -40,7 +42,7 @@ func generate(sizeP:int):
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
 	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	createPath_deepWay_layer_by_layer_alt_5(beginId)
-	
+	colorPath_wideWay(beginId)
 	
 	var depthReached = cubeGraph.lastVisited
 	
@@ -48,7 +50,6 @@ func generate(sizeP:int):
 	
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
-		
 	
 	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
 	var yCoordBase = 0
@@ -65,11 +66,17 @@ func generate(sizeP:int):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		
-		add_child(CubeCustom.new(
-			Vector3(xCoord,yCoord,zCoord), 
-			cubeGraph.getNeighbors(i),
-			cubeGraph.getColor(i), 
-			depthReached))
+		add_child(
+			CubeCustom.new(
+				Vector3(xCoord,yCoord,zCoord), 
+				cubeGraph.getNeighbors(i),
+				cubeGraph.getColor(i), 
+				depthReached,
+				debug,
+				showWall,
+				triColor
+			)
+		)
 		
 		xCoord += gapBetweenCubeCenter
 		
@@ -99,7 +106,10 @@ func generate(sizeP:int):
 				Vector3(xCoord,yCoord,zCoord), 
 				cubeGraph.getNeighborsConnection(i), 
 				cubeGraph.getColor(i), 
-				depthReached
+				depthReached,
+				debug,
+				showWall,
+				triColor
 			)
 		)
 		xCoord += gapBetweenCubeCenter
@@ -649,5 +659,31 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 			cubeGraph.setDepth(currId, depth)
 		stack.append(currId)
 
-func createPath_wideWay(beginId: int = 0):
-	pass
+# BE CAREFULL : this function reset depth and color of current cubeGraph
+func colorPath_wideWay(beginId: int = 0):
+	cubeGraph.reset_Depth_Color_Visited()
+	
+	var neighbors: Array[int]
+	var depth: int = 0
+	neighbors = cubeGraph.getNeighborsConnectionNotVisited(beginId)
+	cubeGraph.setDepth(beginId, depth)
+	cubeGraph.setVisited(beginId)
+	
+	var neighborsNext: Array[int]
+	
+	while(!neighbors.is_empty()) :
+		neighborsNext = neighbors.duplicate()
+		neighbors.clear()
+		depth += 1
+		while(!neighborsNext.is_empty()) :
+			var currentNeighbor:int = neighborsNext.pop_back() # neighbors to proccess
+			cubeGraph.setDepth(currentNeighbor, depth)
+			cubeGraph.setVisited(currentNeighbor)
+			for i in cubeGraph.getNeighborsConnectionNotVisited(currentNeighbor):
+				if i not in neighbors :
+					neighbors.append(i)
+		
+	cubeGraph.setColorFromDepth()
+
+
+

@@ -128,6 +128,13 @@ func getNeighborsConnection(id) -> Array[int]:
 		neighborsForId.append(neighborsConnected[id][i])
 	return neighborsForId
 
+func getNeighborsConnectionNotVisited(id) -> Array[int]:
+	var neighborsForId : Array[int] = []
+	for i in range(nbrNeighbors):
+		if not isVisited(neighborsConnected[id][i]):
+			neighborsForId.append(neighborsConnected[id][i])
+	return neighborsForId
+
 func getNotVisitedNeighbors(id: int, only2D:bool = false):
 	var neighborsForId : Array[int] = []
 	var nbrNeighborsNeeded = nbrNeighbors
@@ -304,6 +311,32 @@ func hasUpNeighbors(id: int):
 
 func getUpNeighbors(id: int):
 	return neighbors[id][5]
+
+func reset_Depth_Color_Visited():
+	lastVisited = 0
+	deepest = 0
+	depths.clear()
+	colorsIds.clear()
+	visited.clear()
+	for i in range(getNbrRoom()):
+		depths.append(-1)
+		colorsIds.append(-1)
+		visited.append(false)
+
+func resetDepth():
+	depths.clear()
+	for i in range(getNbrRoom()):
+		depths.append(-1)
+
+func resetColor():
+	colorsIds.clear()
+	for i in range(getNbrRoom()):
+		colorsIds.append(-1)
+
+func resetVisited():
+	visited.clear()
+	for i in range(getNbrRoom()):
+		visited.append(false)
 
 func clean():
 	neighbors.clear()
