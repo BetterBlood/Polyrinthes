@@ -12,11 +12,14 @@ var _debug:bool
 var _showWall:bool
 var _triColor:bool
 
+var _connection:bool = false
 var _pyramid:bool = false
+
+var _center: Vector3
 
 func _init(center_pos: Vector3, arr: Array[int], depth: float, deepest: float,
 			debug: bool = false, showWall: bool = true, triColor: bool = true):
-	
+	_center = center_pos
 	_debug = debug
 	_showWall = showWall
 	_triColor = triColor
@@ -34,8 +37,11 @@ func _init(center_pos: Vector3, arr: Array[int], depth: float, deepest: float,
 			sphereEnd.set_position(center_pos)
 			add_child(sphereEnd)
 
-func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: float):
-	var ratio = (depth/(size-1.))
+func computeColor(depth: float, size: float, triColor: bool = true) -> Vector3:
+	if not triColor:
+		var ratio = (depth/(size-1.))
+		return Vector3(1 - ratio, 0, ratio).normalized()
+		
 	var redRatio = 0
 	var greenRatio = 0
 	var blueRatio = 0
@@ -51,62 +57,62 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 		blueRatio = 1 - (2 - (depth/((size-1)/2.)))
 		#print(depth, " ", greenRatio, " ", blueRatio)
 	
-	var color = Vector3(1 - ratio, 0, ratio).normalized()
-	
-	if _triColor:
-		color = Vector3(redRatio, greenRatio, blueRatio).normalized()
-	
 	#print(depth/size, " ", 1 - ratio, " ", ratio)
+	return Vector3(redRatio, greenRatio, blueRatio).normalized()
+
+func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: float):
+	var color = computeColor(depth, size)
+	
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(0,0,distFromCenter), Vector3(-2*rotationAngle,0,0))
 	elif _debug && arr[0] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(-2*rotationAngle,0,0), color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,-2*rotationAngle,0), color)
 	if (arr[1] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(0,0,-distFromCenter), Vector3(0,0,0))
 	elif _debug && arr[1] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(0,0,0), color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,0), color)
 	
 	if (arr[2] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(-distFromCenter,0,0), Vector3(0,rotationAngle,0))
 	elif _debug && arr[2] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(distFromCenter,0,0), Vector3(0,-rotationAngle,0))
 	elif _debug && arr[3] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,-rotationAngle,0), color)
 	
 	if (arr[4] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(0,-distFromCenter,0), Vector3(rotationAngle,0,0))
 	elif _debug && arr[4] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(-rotationAngle,0,0), color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,-rotationAngle), color) # (._. )
 	if (arr[5] == wallValue):
 		if _showWall:
 			instanciate_wall(center_pos, Vector3(0,distFromCenter,0), Vector3(-rotationAngle,0,0))
 	elif _debug && arr[5] != outSideWallValue:
-		if not _pyramid:
+		if _connection:
 			instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
-		else :
+		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,rotationAngle), color) # (._o )
 
 func instanciate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
@@ -181,6 +187,9 @@ func instantiate_pyramid(center_pos: Vector3, rot: Vector3, color: Vector3):
 	m.material_override = newMaterial
 	
 	add_child(m)
+
+func getCenter():
+	return _center
 
 func clean():
 	for i in self.get_children():
