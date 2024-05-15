@@ -121,6 +121,13 @@ func getNeighbors(id: int) -> Array[int]:
 	
 	return neighborsForId
 
+func getNextNeighbors(id: int) -> Array[int]:
+	var neighborsForId : Array[int] = []
+	for i in range(nbrNeighbors):
+		if neighborsConnected[id][i] > -1 && isFollowing(id, neighborsConnected[id][i]):
+			neighborsForId.append(neighborsConnected[id][i])
+	return neighborsForId
+
 # construct a copy of the connected neighbors for the id given
 func getNeighborsConnection(id) -> Array[int]:
 	var neighborsForId : Array[int] = []
@@ -306,6 +313,9 @@ func setProcessing(id: int, value: bool = true):
 	if not isInRange(id): return
 	processing[id] = value
 
+func isFollowing(id_first: int, id_second: int):
+	return isInRange(id_first) && isInRange(id_second) && getDepth(id_first) < getDepth(id_second)
+
 func hasUpNeighbors(id: int):
 	return neighbors[id][5] != -1
 
@@ -338,6 +348,100 @@ func resetVisited():
 	for i in range(getNbrRoom()):
 		visited.append(false)
 
+# duplicate from CubeCustom
+func computeColor(depth: float, size: float, triColor: bool = true) -> Vector3:
+	if not triColor:
+		var ratio = (depth/(size-1.))
+		return Vector3(1 - ratio, 0, ratio).normalized()
+		
+	var redRatio = 0
+	var greenRatio = 0
+	var blueRatio = 0
+	
+	if depth < size/2. :
+		redRatio = 1 - (depth/((size-1)/2.))
+		greenRatio = (depth/((size-1)/2.))/2
+		blueRatio = 0
+		#print(depth, " ", redRatio)
+	else :
+		redRatio = 0
+		greenRatio = 1 - (depth/((size-1)/2.))/2
+		blueRatio = 1 - (2 - (depth/((size-1)/2.)))
+		#print(depth, " ", greenRatio, " ", blueRatio)
+	
+	#print(depth/size, " ", 1 - ratio, " ", ratio)
+	return Vector3(redRatio, greenRatio, blueRatio).normalized()
+
+func instantiate_pyramid(center_pos: Vector3, distFromCenter: Vector3, color: Vector3):
+	var base_distFromCenter: int = 1
+	var vertices = PackedVector3Array()
+	var point1:Vector3
+	var point2:Vector3
+	var point3:Vector3
+	var point4:Vector3
+	
+	if distFromCenter.x != 0:
+		point1 = Vector3(0, base_distFromCenter, base_distFromCenter)
+		point2 = Vector3(0, -base_distFromCenter, base_distFromCenter)
+		point3 = Vector3(0, -base_distFromCenter, -base_distFromCenter)
+		point4 = Vector3(0, base_distFromCenter, -base_distFromCenter)
+	elif distFromCenter.y != 0:
+		point1 = Vector3(base_distFromCenter, 0, base_distFromCenter)
+		point2 = Vector3(-base_distFromCenter, 0, base_distFromCenter)
+		point3 = Vector3(-base_distFromCenter, 0, -base_distFromCenter)
+		point4 = Vector3(base_distFromCenter, 0, -base_distFromCenter)
+	else:
+		point1 = Vector3(base_distFromCenter, base_distFromCenter, 0)
+		point2 = Vector3(-base_distFromCenter, base_distFromCenter, 0)
+		point3 = Vector3(-base_distFromCenter, -base_distFromCenter, 0)
+		point4 = Vector3(base_distFromCenter, -base_distFromCenter, 0)
+	
+	# 4 faces :
+	vertices.push_back(point1)
+	vertices.push_back(distFromCenter)
+	vertices.push_back(point2)
+	
+	vertices.push_back(point2)
+	vertices.push_back(distFromCenter)
+	vertices.push_back(point3)
+
+	vertices.push_back(point3)
+	vertices.push_back(distFromCenter)
+	vertices.push_back(point4)
+
+	vertices.push_back(point4)
+	vertices.push_back(distFromCenter)
+	vertices.push_back(point1)
+	
+	# base (square (triangle x 2)):
+	vertices.push_back(point1)
+	vertices.push_back(point2)
+	vertices.push_back(point3)
+	
+	vertices.push_back(point3)
+	vertices.push_back(point4)
+	vertices.push_back(point1)
+	
+	
+	# Initialize the ArrayMesh.
+	var arr_mesh = ArrayMesh.new()
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	
+	# Create the Mesh.
+	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	
+	var m = MeshInstance3D.new()
+	m.mesh = arr_mesh
+	m.position = center_pos
+	
+	var newMaterial = StandardMaterial3D.new()
+	newMaterial.albedo_color = Color(color.x, color.y, color.z, 1)
+	m.material_override = newMaterial
+	
+	return m
+
 func clean():
 	neighbors.clear()
 	neighborsConnected.clear()
@@ -348,3 +452,7 @@ func clean():
 	visited.clear()
 	processing.clear()
 	depths.clear()
+	
+	for i in self.get_children():
+		self.remove_child(i)
+		i.queue_free()
