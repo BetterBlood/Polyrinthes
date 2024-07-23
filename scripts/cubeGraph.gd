@@ -33,6 +33,7 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6
 		depths.append(-1)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
+	
 	constructNeig()
 	replaceValueForOutsideWalls(neighborsConnected)
 
@@ -349,27 +350,27 @@ func resetVisited():
 		visited.append(false)
 
 # duplicate from CubeCustom
-func computeColor(depth: float, size: float, triColor: bool = true) -> Vector3:
+func computeColor(depth: float, maxDepth: float, triColor: bool = true) -> Vector3:
 	if not triColor:
-		var ratio = (depth/(size-1.))
+		var ratio = (depth/(maxDepth-1.))
 		return Vector3(1 - ratio, 0, ratio).normalized()
 		
 	var redRatio = 0
 	var greenRatio = 0
 	var blueRatio = 0
 	
-	if depth < size/2. :
-		redRatio = 1 - (depth/((size-1)/2.))
-		greenRatio = (depth/((size-1)/2.))/2
+	if depth < maxDepth/2. :
+		redRatio = 1 - (depth/((maxDepth-1)/2.))
+		greenRatio = (depth/((maxDepth-1)/2.))/2
 		blueRatio = 0
 		#print(depth, " ", redRatio)
 	else :
 		redRatio = 0
-		greenRatio = 1 - (depth/((size-1)/2.))/2
-		blueRatio = 1 - (2 - (depth/((size-1)/2.)))
+		greenRatio = 1 - (depth/((maxDepth-1)/2.))/2
+		blueRatio = 1 - (2 - (depth/((maxDepth-1)/2.)))
 		#print(depth, " ", greenRatio, " ", blueRatio)
 	
-	#print(depth/size, " ", 1 - ratio, " ", ratio)
+	#print(depth/maxDepth, " ", 1 - ratio, " ", ratio)
 	return Vector3(redRatio, greenRatio, blueRatio).normalized()
 
 func instantiate_pyramid(center_pos: Vector3, distFromCenter: Vector3, color: Vector3):

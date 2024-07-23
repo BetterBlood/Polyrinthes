@@ -31,12 +31,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.782, 0)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/StaticBody3D"]
+transform = Transform3D(0.3, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("BoxMesh_onn55")
 
 [node name="StaticBody3D2" type="StaticBody3D" parent="Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -10)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Head/StaticBody3D2"]
+transform = Transform3D(1, 0, 0, 0, 0.3, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("BoxMesh_a0u0u")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="."]

@@ -7,10 +7,10 @@ var cubeGraph
 var mazeAll:Dictionary= {}
 var maze:Dictionary= {}
 
-var size = 3
-var gapBetweenCubeCenter = 21 # 10.5
+var size = 3 # default size
+var gapBetweenCubeCenter = 21 # 10.5 : normal spacing for rooms
 var wallV = -1 # -1 = wall
-var outWallV = -2 # -2 = ~ invisible walls
+var outWallV = -2 # -2 = ~ invisible walls (for debug)
 
 var thread: Thread
 signal end_generate()
@@ -34,7 +34,7 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	var showWall:bool = false
+	var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 	var triColor:bool = true
 	
 #	if (sizeBase == 3): exampleDebugforsize3()
@@ -94,7 +94,7 @@ func generate(sizeP:int):
 	var time_end = Time.get_ticks_msec()
 	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
 	
-	deepensPath_wideWay(mazeAll, beginId)
+	deepensPath_wideWay(mazeAll, beginId) # recompute connections from id given
 	
 	depthReached = cubeGraph.lastVisited
 	
@@ -147,7 +147,7 @@ func generate(sizeP:int):
 #	print(cubeGraph.depths)
 	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 	
-	deepensPath_wideWay(maze, beginId)
+	deepensPath_wideWay(maze, beginId) # recompute connections from id given
 	
 	depthReached = cubeGraph.lastVisited
 	
@@ -216,7 +216,7 @@ func createPath_deepWay(beginId: int = 0):
 	var stack = []
 	
 	stack.append(beginId)
-	cubeGraph.setVisited(beginId) # not really interesting to comment this line
+	cubeGraph.setVisited(beginId) # not really interesting to remove this line
 	cubeGraph.setDepth(beginId, 0)
 	
 	var currId = beginId
@@ -278,6 +278,9 @@ func createPath_deepWay_alt_1(beginId: int = 0):
 			cubeGraph.setVisited(newId)
 			currId = newId
 			i = 0
+
+# TODO : a deepgeneration with sometimes a switch on wide generation
+
 
 func createPath_deepWay_layer_by_layer(beginId: int = 0):
 	var neighborsToExplo = []
@@ -688,7 +691,8 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 			cubeGraph.setDepth(currId, depth)
 		stack.append(currId)
 
-# BE CAREFULL : this function reset depth and color of current cubeGraph
+# BE CAREFULL : this function reset depth and color of current cubeGraph 
+# using beginId for the new generation base : 0 by default
 func deepensPath_wideWay(mazeUsed, beginId: int = 0):
 	cubeGraph.reset_Depth_Color_Visited()
 	
@@ -719,22 +723,25 @@ func deepensPath_wideWay(mazeUsed, beginId: int = 0):
 	cubeGraph.setColorFromDepth()
 
 func instantiatePyramidConnection(mazeUsed, depthReached: int):
+	if !newConnectionDebug:
+		return
 	for id in mazeUsed:
 		for i in cubeGraph.getNextNeighbors(id):
-			if newConnectionDebug:
-				# print(id, " ", i, " ", (mazeUsed[i].getCenter() - mazeUsed[id].getCenter()).normalized())
-				add_child(
-					cubeGraph.instantiate_pyramid(
-						mazeUsed[id].getCenter(),
-						mazeUsed[i].getCenter() - mazeUsed[id].getCenter(),
-						cubeGraph.computeColor(cubeGraph.getDepth(id),depthReached)
-					)
+			# print(id, " ", i, " ", (mazeUsed[i].getCenter() - mazeUsed[id].getCenter()).normalized())
+			add_child(
+				cubeGraph.instantiate_pyramid(
+					mazeUsed[id].getCenter(),
+					mazeUsed[i].getCenter() - mazeUsed[id].getCenter(),
+					cubeGraph.computeColor(cubeGraph.getDepth(id),depthReached)
 				)
+			)
 
 func instantiatePyramidConnection_allNeighbors(mazeUsed, depthReached: int):
+	if !newConnectionDebug:
+		return
 	for id in mazeUsed:
 		for i in cubeGraph.getNeighbors(id):
-			if newConnectionDebug && i > -1:
+			if i > -1:
 				add_child(
 					cubeGraph.instantiate_pyramid(
 						mazeUsed[id].getCenter(),
