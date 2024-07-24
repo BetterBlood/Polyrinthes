@@ -1,0 +1,23 @@
+[gd_scene load_steps=2 format=3 uid="uid://ijlkuimri7i7"]
+
+[ext_resource type="PackedScene" uid="uid://cuyxf55noe870" path="res://scenes/triangle.tscn" id="1_31mlr"]
+
+[node name="Hexagon" type="StaticBody3D"]
+
+[node name="Triangle" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -10.83, 0)
+
+[node name="Triangle2" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(0.5, -0.866025, 0, 0.866025, 0.5, 0, 0, 0, 1, 9.374, -5.417, 0)
+
+[node name="Triangle3" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(-0.5, -0.866025, 0, 0.866025, -0.5, 0, 0, 0, 1, 9.374, 5.417, 0)
+
+[node name="Triangle4" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 10.83, 0)
+
+[node name="Triangle5" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(-0.5, 0.866025, 0, -0.866025, -0.5, 0, 0, 0, 1, -9.374, 5.417, 0)
+
+[node name="Triangle6" parent="." instance=ExtResource("1_31mlr")]
+transform = Transform3D(0.5, 0.866025, 0, -0.866025, 0.5, 0, 0, 0, 1, -9.374, -5.417, 0)

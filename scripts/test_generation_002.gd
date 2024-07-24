@@ -4,11 +4,13 @@ const CubeGraph := preload("res://scripts/cubeGraph.gd")
 var wall = preload("res://scenes/wall.tscn")
 var cubeGraph
 
+const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn")
+
 var mazeAll:Dictionary= {}
 var maze:Dictionary= {}
 
 var size = 3 # default size
-var gapBetweenCubeCenter = 21 # 10.5 : normal spacing for rooms
+var gapBetweenCubeCenter = 21 # 10.5 : normal spacing for cube rooms
 var wallV = -1 # -1 = wall
 var outWallV = -2 # -2 = ~ invisible walls (for debug)
 
@@ -22,6 +24,9 @@ var newConnectionDebug: bool = true
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
 	#generate(size)
+	var truncOcta = TruncatedOctahedron.instantiate()
+	truncOcta.position = Vector3(0, 0, 50)
+	add_child(truncOcta)
 	pass
 
 func _process(_delta):
@@ -154,6 +159,7 @@ func generate(sizeP:int):
 	instantiatePyramidConnection(maze, depthReached)
 	
 	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
+	
 
 func _on_menu_generation(edgeSize) -> void:
 	maze.clear()

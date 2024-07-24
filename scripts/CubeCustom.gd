@@ -1,5 +1,7 @@
 extends Node
+
 class_name CubeCustom
+
 var connection = preload("res://scenes/connection.tscn")
 var wall = preload("res://scenes/wall.tscn")
 var sphere = preload("res://scenes/sphere.tscn")

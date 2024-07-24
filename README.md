@@ -41,6 +41,12 @@ Débug mesh en couleur :
   <img src="images/PyramidalDebugWithAllWallsAndSpacingSize6.PNG" alt="Pyramidal connection debug tricolor with all walls"/>
 </p>
 
+#### Pièces spéciales, octaèdre tronqué
+24.07.24
+<p align="center">
+  <img src="images/truncatedOctahedron.PNG" alt="Truncated Octahedron"/>
+</p>
+
 WIP : Différentes sorte de générations
 
 ### 3D Maze generator

@@ -1,0 +1,12 @@
+[gd_resource type="StandardMaterial3D" load_steps=4 format=3 uid="uid://da2y85405apvi"]
+
+[ext_resource type="Texture2D" uid="uid://b3hpf4aiego2u" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_diff_4k.png" id="1_l52ll"]
+[ext_resource type="Texture2D" uid="uid://cr86wtlxpfj3l" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_nor_gl_4k.png" id="2_q2ik6"]
+[ext_resource type="Texture2D" uid="uid://durvvqtkbs7p7" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_rough_4k.png" id="3_atoqc"]
+
+[resource]
+albedo_texture = ExtResource("1_l52ll")
+roughness_texture = ExtResource("3_atoqc")
+normal_enabled = true
+normal_texture = ExtResource("2_q2ik6")
+uv1_scale = Vector3(5, 5, 5)

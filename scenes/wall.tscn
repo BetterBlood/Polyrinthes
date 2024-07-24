@@ -1,18 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://cfyxkets7uq6h"]
+[gd_scene load_steps=4 format=3 uid="uid://cfyxkets7uq6h"]
 
-[ext_resource type="Texture2D" uid="uid://b3hpf4aiego2u" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_diff_4k.png" id="1_w6lm1"]
-[ext_resource type="Texture2D" uid="uid://cr86wtlxpfj3l" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_nor_gl_4k.png" id="2_7ipsm"]
-[ext_resource type="Texture2D" uid="uid://durvvqtkbs7p7" path="res://textures/rabdentse_ruins_wall/rabdentse_ruins_wall_rough_4k.png" id="3_utrk4"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k1yxy"]
-albedo_texture = ExtResource("1_w6lm1")
-roughness_texture = ExtResource("3_utrk4")
-normal_enabled = true
-normal_texture = ExtResource("2_7ipsm")
-uv1_scale = Vector3(5, 5, 5)
+[ext_resource type="Material" uid="uid://da2y85405apvi" path="res://materials/wallMaterial.tres" id="1_bl7bf"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_frfw6"]
-material = SubResource("StandardMaterial3D_k1yxy")
+material = ExtResource("1_bl7bf")
 size = Vector3(25, 25, 0.2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_c1rpm"]

@@ -1,0 +1,48 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4nnco1fnm4lm"]
+
+[ext_resource type="PackedScene" uid="uid://cfyxkets7uq6h" path="res://scenes/wall.tscn" id="1_yb4t4"]
+[ext_resource type="PackedScene" uid="uid://ijlkuimri7i7" path="res://scenes/hexagon.tscn" id="2_dtppb"]
+
+[node name="OctaedreTronque" type="Node3D"]
+
+[node name="Wall" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(0.848528, -0.848528, 0, 0.848528, 0.848528, 0, 0, 0, 1.2, 0, 0, 17.5)
+
+[node name="Wall2" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(-3.70903e-08, 3.70903e-08, 1.2, 0.848528, 0.848528, 0, -0.848528, 0.848528, -5.24537e-08, -17.5, 0, 0)
+
+[node name="Wall3" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(-0.848528, 0.848528, -1.81195e-07, 0.848528, 0.848528, 0, 1.28124e-07, -1.28124e-07, -1.2, 0, 0, -17.5)
+
+[node name="Wall4" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(-3.70903e-08, 3.70903e-08, -1.2, 0.848528, 0.848528, 0, 0.848528, -0.848528, -5.24537e-08, 17.5, 0, 0)
+
+[node name="Wall5" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(0.848528, -0.848528, 3.70903e-08, 0, -5.24537e-08, -1.2, 0.848528, 0.848528, -3.70903e-08, 0, -17.5, 0)
+
+[node name="Wall6" parent="." instance=ExtResource("1_yb4t4")]
+transform = Transform3D(0.848528, -0.848528, -3.70903e-08, 0, -5.24537e-08, 1.2, -0.848528, -0.848528, -3.70903e-08, 0, 17.5, 0)
+
+[node name="Hexagon" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(0.353553, -0.20279, 0.289614, 0, 0.409576, 0.286788, -0.353553, -0.20279, 0.289614, 8.8, 8.8, 8.8)
+
+[node name="Hexagon8" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(0.353553, 0.20279, 0.289614, 0, 0.409576, -0.286788, -0.353553, 0.20279, 0.289614, 8.8, -8.8, 8.8)
+
+[node name="Hexagon2" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(-0.353553, -0.20279, 0.289614, 0, 0.409576, 0.286788, -0.353553, 0.20279, -0.289614, 8.8, 8.8, -8.8)
+
+[node name="Hexagon7" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(-0.353553, 0.20279, 0.289614, 0, 0.409576, -0.286788, -0.353553, -0.20279, -0.289614, 8.8, -8.8, -8.8)
+
+[node name="Hexagon3" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(-0.353553, 0.20279, -0.289614, 0, 0.409576, 0.286788, 0.353553, 0.20279, -0.289614, -8.8, 8.8, -8.8)
+
+[node name="Hexagon6" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(-0.353553, -0.20279, -0.289614, 0, 0.409576, -0.286788, 0.353553, -0.20279, -0.289614, -8.8, -8.8, -8.8)
+
+[node name="Hexagon4" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(0.353553, 0.20279, -0.289614, 0, 0.409576, 0.286788, 0.353553, -0.20279, 0.289614, -8.8, 8.8, 8.8)
+
+[node name="Hexagon5" parent="." instance=ExtResource("2_dtppb")]
+transform = Transform3D(0.353553, -0.20279, -0.289614, 0, 0.409576, -0.286788, 0.353553, 0.20279, 0.289614, -8.8, -8.8, 8.8)

@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://cuyxf55noe870"]
+
+[ext_resource type="Material" uid="uid://da2y85405apvi" path="res://materials/wallMaterial.tres" id="1_0c8am"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_r5fc5"]
+material = ExtResource("1_0c8am")
+size = Vector3(25, 21.65, 0.2)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ro63a"]
+points = PackedVector3Array(-12.6959, -12.6959, -0.298413, 0.395194, 12.6959, 0.495238, 8.33139, -3.1715, 0.495238, 0.395194, 12.6959, -0.298413, 12.6959, -12.6959, -0.298413, -12.6959, -12.6959, 0.495238, 12.6959, -12.6959, 0.495238, -0.395194, 12.6959, -0.298413, -8.33139, -3.1715, 0.495238, 12.6959, -11.9006, -0.298413, -12.6959, -11.9006, -0.298413, -0.395194, 12.6959, 0.495238, -12.6959, -11.9006, 0.495238, 12.6959, -11.9006, 0.495238)
+
+[node name="Triangle" type="StaticBody3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("PrismMesh_r5fc5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.85, 0, 0, 0, 0.4, 0, 0, 0)
+shape = SubResource("ConvexPolygonShape3D_ro63a")
