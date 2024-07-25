@@ -25,6 +25,7 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6
 	colorByDepth = byDepthColor
 	
 	for i in range(getNbrRoom()):
+		# TODO see if Array.resise() or something like this is usable here
 		visited.append(false)
 		processing.append(false)
 		neighbors.append([])

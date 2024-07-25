@@ -24,9 +24,11 @@ var newConnectionDebug: bool = true
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
 	#generate(size)
+	
 	var truncOcta = TruncatedOctahedron.instantiate()
 	truncOcta.position = Vector3(0, 0, 50)
 	add_child(truncOcta)
+	
 	pass
 
 func _process(_delta):
