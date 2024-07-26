@@ -1,5 +1,6 @@
 extends Node3D
 const CubeCustom := preload("res://scripts/CubeCustom.gd")
+const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
 var wall = preload("res://scenes/wall.tscn")
 var cubeGraph
@@ -121,7 +122,8 @@ func generate(sizeP:int):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		
-		var cube = CubeCustom.new(
+		#var cube = CubeCustom.new(
+		var cube = TruncatedOctahedronCustom.new(
 					Vector3(xCoord,yCoord,zCoord), 
 					cubeGraph.getNeighborsConnection(i), 
 					cubeGraph.getColor(i), 

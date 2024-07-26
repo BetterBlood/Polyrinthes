@@ -158,7 +158,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,0,distFromCenter_square), Vector3(-2*rotationAngle,0,0))
+			instantiate_squareWall(center_pos, Vector3(0,0,distFromCenter_square), Vector3(-2*rotationAngle,rotationAngle/2,0))
 	elif _debug && arr[0] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-2*rotationAngle,0,0), color)
@@ -166,7 +166,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_pyramid(center_pos, Vector3(0,-2*rotationAngle,0), color)
 	if (arr[1] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,0,-distFromCenter_square), Vector3(0,0,0))
+			instantiate_squareWall(center_pos, Vector3(0,0,-distFromCenter_square), Vector3(0,rotationAngle/2,0))
 	elif _debug && arr[1] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,0,0), color)
@@ -175,7 +175,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 	
 	if (arr[2] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(-distFromCenter_square,0,0), Vector3(0,rotationAngle,0))
+			instantiate_squareWall(center_pos, Vector3(-distFromCenter_square,0,0), Vector3(rotationAngle/2,rotationAngle,0))
 	elif _debug && arr[2] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
@@ -183,7 +183,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_pyramid(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(distFromCenter_square,0,0), Vector3(0,-rotationAngle,0))
+			instantiate_squareWall(center_pos, Vector3(distFromCenter_square,0,0), Vector3(rotationAngle/2,-rotationAngle,0))
 	elif _debug && arr[3] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
@@ -192,7 +192,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 	
 	if (arr[4] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,-distFromCenter_square,0), Vector3(rotationAngle,0,0))
+			instantiate_squareWall(center_pos, Vector3(0,-distFromCenter_square,0), Vector3(rotationAngle,rotationAngle/2,0))
 	elif _debug && arr[4] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-rotationAngle,0,0), color)
@@ -200,9 +200,12 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_pyramid(center_pos, Vector3(0,0,-rotationAngle), color) # (._. )
 	if (arr[5] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,distFromCenter_square,0), Vector3(-rotationAngle,0,0))
+			instantiate_squareWall(center_pos, Vector3(0,distFromCenter_square,0), Vector3(-rotationAngle,rotationAngle/2,0))
 	elif _debug && arr[5] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
 		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,rotationAngle), color) # (._o )
+
+func getCenter():
+	return _center
