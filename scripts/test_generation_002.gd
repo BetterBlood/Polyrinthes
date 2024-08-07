@@ -9,9 +9,11 @@ const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn")
 
 var mazeAll:Dictionary= {}
 var maze:Dictionary= {}
+var mazeTruncOcta:Dictionary= {}
 
 var size = 3 # default size
 var gapBetweenCubeCenter = 21 # 10.5 : normal spacing for cube rooms
+var gapBetweenTruncatedOctahedronCenter = 17.5*2 + 0.25
 var wallV = -1 # -1 = wall
 var outWallV = -2 # -2 = ~ invisible walls (for debug)
 
@@ -26,10 +28,21 @@ var newConnectionDebug: bool = true
 func _ready(): # (backward, forward, left, right, down, up)
 	#generate(size)
 	
-	var truncOcta = TruncatedOctahedron.instantiate()
-	truncOcta.position = Vector3(0, 0, 50)
-	add_child(truncOcta)
-	
+#	var truncOcta = TruncatedOctahedron.instantiate()
+#	truncOcta.position = Vector3(0, 0, 50)
+#	add_child(truncOcta)
+#
+#	var truncOctaCust = TruncatedOctahedronCustom.new(
+#		Vector3(50, 0, 50), 
+#		[-1, -1, -1, -1, -1, -1], 
+#		0, 
+#		0,
+#		false,
+#		true,
+#		true
+#	)
+#
+#	add_child(truncOctaCust)
 	pass
 
 func _process(_delta):
@@ -42,7 +55,7 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+	var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
 	var triColor:bool = true
 	
 #	if (sizeBase == 3): exampleDebugforsize3()
@@ -109,7 +122,7 @@ func generate(sizeP:int):
 	instantiatePyramidConnection_allNeighbors(mazeAll, depthReached)
 	
 	# reset to new location :
-	xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2)) + gapBetweenCubeCenter * (sizeBase + 1)
+	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase
 	yCoordBase = 0
 	zCoordBase = 0
 	xCoord = xCoordBase
@@ -122,8 +135,8 @@ func generate(sizeP:int):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		
-		#var cube = CubeCustom.new(
-		var cube = TruncatedOctahedronCustom.new(
+		var cube = CubeCustom.new(
+		#var cube = TruncatedOctahedronCustom.new(
 					Vector3(xCoord,yCoord,zCoord), 
 					cubeGraph.getNeighborsConnection(i), 
 					cubeGraph.getColor(i), 
@@ -164,13 +177,56 @@ func generate(sizeP:int):
 	
 	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
 	
+	
+	# reset to new location (for truncated octahedron):
+	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
+	yCoordBase = 0
+	zCoordBase = 0
+	xCoord = xCoordBase
+	yCoord = yCoordBase
+	zCoord = zCoordBase
+	
+	time_start = Time.get_ticks_msec()
+	for i in range(sizeTotal): # TODO : truncatedOctahedronGraph (to file empty spaces with usable rooms)
+		var truncatedOctahedron = TruncatedOctahedronCustom.new(
+					Vector3(xCoord,yCoord,zCoord), 
+					cubeGraph.getNeighborsConnection(i), 
+					cubeGraph.getColor(i), 
+					depthReached,
+					debug,
+					showWall,
+					triColor
+				)
+		
+		add_child(truncatedOctahedron)
+		mazeTruncOcta[i] = truncatedOctahedron
+		
+		xCoord += gapBetweenTruncatedOctahedronCenter
+		
+		if i%(sizeBase) == sizeBase - 1:
+			xCoord = xCoordBase
+			yCoord += gapBetweenTruncatedOctahedronCenter
+		
+		if i%(sizeFace) == (sizeFace) - 1:
+			yCoord = yCoordBase
+			zCoord -= gapBetweenTruncatedOctahedronCenter
+		
+	time_end = Time.get_ticks_msec()
+	print("100% truncated octahedron in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
+	
+	deepensPath_wideWay(mazeTruncOcta, beginId) # recompute connections from id given
+	
+	depthReached = cubeGraph.lastVisited
+	
+	instantiatePyramidConnection(mazeTruncOcta, depthReached)
 
 func _on_menu_generation(edgeSize) -> void:
 	maze.clear()
 	mazeAll.clear()
+	mazeTruncOcta.clear()
 	
 	for i in self.get_children():
-		if i is CubeCustom:
+		if i is CubeCustom or i is TruncatedOctahedronCustom:
 			i.clean()
 			self.remove_child(i)
 			i.queue_free()
