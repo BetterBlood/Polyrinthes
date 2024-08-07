@@ -7,10 +7,11 @@ var squareWall = preload("res://scenes/wall.tscn")
 var hexagonWall = preload("res://scenes/hexagon.tscn")
 var sphere = preload("res://scenes/sphere.tscn")
 
-var distFromCenter_square = 5.2 
-var distFromCenter_hexagon = 5.2 
+var distFromCenter_square = 17.5
+var distFromCenter_hexagon = 8.8 
 
 var rotationAngle = PI/2
+var secondRotAngle = PI*7/36
 
 var wallValue = -1
 var outSideWallValue = -2
@@ -51,6 +52,8 @@ func instantiate_squareWall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	wallTmp.set_position(center_pos + pos)
 	wallTmp.set_rotation(rot)
 	
+	wallTmp.set_scale(Vector3(1.2, 1.2, 1.2))
+	
 	add_child(wallTmp)
 
 
@@ -59,6 +62,7 @@ func instantiate_hexagonWall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	
 	wallTmp.set_position(center_pos + pos)
 	wallTmp.set_rotation(rot)
+	wallTmp.set_scale(Vector3(0.5, 0.5, 0.5))
 	
 	add_child(wallTmp)
 
@@ -152,13 +156,10 @@ func instantiate_pyramid(center_pos: Vector3, rot: Vector3, color: Vector3):
 func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, size: float):
 	var color = computeColor(depth, size)
 	
-	# TODO : the right rotation and position
-	# TODO : add hexagon
-	
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,0,distFromCenter_square), Vector3(-2*rotationAngle,rotationAngle/2,0))
+			instantiate_squareWall(center_pos, Vector3(0,0,distFromCenter_square), Vector3(-2*rotationAngle,0,rotationAngle/2))
 	elif _debug && arr[0] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-2*rotationAngle,0,0), color)
@@ -166,7 +167,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_pyramid(center_pos, Vector3(0,-2*rotationAngle,0), color)
 	if (arr[1] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(0,0,-distFromCenter_square), Vector3(0,rotationAngle/2,0))
+			instantiate_squareWall(center_pos, Vector3(0,0,-distFromCenter_square), Vector3(0,0,-rotationAngle/2))
 	elif _debug && arr[1] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,0,0), color)
@@ -175,7 +176,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 	
 	if (arr[2] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(-distFromCenter_square,0,0), Vector3(rotationAngle/2,rotationAngle,0))
+			instantiate_squareWall(center_pos, Vector3(-distFromCenter_square,0,0), Vector3(0,rotationAngle,rotationAngle/2))
 	elif _debug && arr[2] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
@@ -183,7 +184,7 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_pyramid(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
 		if _showWall:
-			instantiate_squareWall(center_pos, Vector3(distFromCenter_square,0,0), Vector3(rotationAngle/2,-rotationAngle,0))
+			instantiate_squareWall(center_pos, Vector3(distFromCenter_square,0,0), Vector3(0,-rotationAngle, -rotationAngle/2))
 	elif _debug && arr[3] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
@@ -206,6 +207,25 @@ func instantiate_truncOcta(center_pos: Vector3, arr: Array[int], depth: float, s
 			instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
 		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,rotationAngle), color) # (._o )
-
+	
+	if _showWall:
+		instantiate_hexagonWall(center_pos, Vector3(distFromCenter_hexagon, distFromCenter_hexagon, distFromCenter_hexagon), Vector3(-secondRotAngle,rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(distFromCenter_hexagon, distFromCenter_hexagon, -distFromCenter_hexagon), Vector3(-secondRotAngle,3*rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(-distFromCenter_hexagon, distFromCenter_hexagon, -distFromCenter_hexagon), Vector3(-secondRotAngle,-3*rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(-distFromCenter_hexagon, distFromCenter_hexagon, distFromCenter_hexagon), Vector3(-secondRotAngle,-rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(distFromCenter_hexagon, -distFromCenter_hexagon, distFromCenter_hexagon), Vector3(secondRotAngle,rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(distFromCenter_hexagon, -distFromCenter_hexagon, -distFromCenter_hexagon), Vector3(secondRotAngle,3*rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(-distFromCenter_hexagon, -distFromCenter_hexagon, -distFromCenter_hexagon), Vector3(secondRotAngle,-3*rotationAngle/2,0))
+		instantiate_hexagonWall(center_pos, Vector3(-distFromCenter_hexagon, -distFromCenter_hexagon, distFromCenter_hexagon), Vector3(secondRotAngle,-rotationAngle/2,0))
+	
 func getCenter():
 	return _center
+
+func clean():
+	for i in self.get_children():
+		self.remove_child(i)
+		i.queue_free()
+
+func _exit_tree():
+	self.queue_free()
+

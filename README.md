@@ -41,10 +41,18 @@ Débug mesh en couleur :
   <img src="images/PyramidalDebugWithAllWallsAndSpacingSize6.PNG" alt="Pyramidal connection debug tricolor with all walls"/>
 </p>
 
-#### Pièces spéciales, octaèdre tronqué
+### Pièces spéciales
+
+#### Octaèdre tronqué
 24.07.24
 <p align="center">
   <img src="images/truncatedOctahedron.PNG" alt="Truncated Octahedron"/>
+</p>
+
+#### Generation de labyrinthe avec des octaèdre tronqué et des trous
+24.08.07
+<p align="center">
+  <img src="images/truncatedOctahedronLabAsCube.PNG" alt="Truncated Octahedron Labyrinth as cubes one"/>
 </p>
 
 WIP : Différentes sorte de générations
