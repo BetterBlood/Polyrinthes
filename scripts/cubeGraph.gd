@@ -1,31 +1,13 @@
-extends Node
+extends BaseGraph
 class_name CubeGraph
 
-var neighbors = []
-var neighborsConnected = []
-var colorsIds = []
-var depths = []
-var lastVisited = 0
-var deepest = 0
-var visited:Array[bool] = []
-var processing:Array[bool] = []
 static var colorId = 0
-var colorByDepth = true
-
-var size: int
-var nbrNeighbors: int
-var wallValue: int
-var outsideWallValue: int
 
 func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6, byDepthColor: bool = true):
-	size = mazeSize
-	nbrNeighbors = nbrN
-	wallValue = wallV
-	outsideWallValue = outWallV
-	colorByDepth = byDepthColor
+	super._init(mazeSize, wallV, outWallV, nbrN, byDepthColor)
 	
 	for i in range(getNbrRoom()):
-		# TODO see if Array.resise() or something like this is usable here
+		# TODO see if Array.resise() or something like this is usable here (and better)
 		visited.append(false)
 		processing.append(false)
 		neighbors.append([])
@@ -270,12 +252,6 @@ func areNeighbors(id1, id2):
 			if i == id2:
 				return true
 	return false
-
-func getNbrRoom():
-	return size * size * size
-
-func getNbrRoomOnASide():
-	return size * size
 
 func getColor(id: int):
 	if isInRange(id):
