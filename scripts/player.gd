@@ -10,7 +10,7 @@ var directionnalInputs = Vector3(0,0,0)
 
 
 var godMode : bool
-const godModeSpeedMultiplier = 7
+const godModeSpeedMultiplier = 15
 @onready var collisionShape := $CollisionShape3D
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -18,6 +18,7 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 func _ready():
 	godMode = true
+	collisionShape.disabled = true
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 func _unhandled_input(event):

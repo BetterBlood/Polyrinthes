@@ -3,19 +3,24 @@ const CubeCustom := preload("res://scripts/CubeCustom.gd")
 const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
 var wall = preload("res://scenes/wall.tscn")
-var cubeGraph
+var cubeGraph: CubeGraph
 
-const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn")
+const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn") # DEBUG
 
 var mazeAll:Dictionary= {}
 var maze:Dictionary= {}
 var mazeTruncOcta:Dictionary= {}
 
 var size = 3 # default size
-var gapBetweenCubeCenter = 21 # 10.5 : normal spacing for cube rooms
-var gapBetweenTruncatedOctahedronCenter = 17.5*2 + 0.25
+# 10.5 : normal spacing for cube rooms
+# 21 : spacing to add gap between cube rooms
+var gapBetweenRooms_multiplier = 1 # 1 for no gap, other value for DEBUG
+var gapBetweenCubeCenter = (CubeCustom.distFromCenter * 2 + 0.1) * \
+		gapBetweenRooms_multiplier
+var gapBetweenTruncatedOctahedronCenter = (17.5*2 + 0.25) * \
+		gapBetweenRooms_multiplier
 var wallV = -1 # -1 = wall
-var outWallV = -2 # -2 = ~ invisible walls (for debug)
+var outWallV = -2 # -2 = ~ invisible walls (DEBUG)
 
 var thread: Thread
 signal end_generate()
@@ -58,7 +63,9 @@ func generate(sizeP:int):
 	var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
 	var triColor:bool = true
 	
-#	if (sizeBase == 3): exampleDebugforsize3()
+#	if (sizeBase == 3): 
+#		exampleDebugforsize3()
+#		return
 	
 	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
@@ -69,15 +76,16 @@ func generate(sizeP:int):
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
 	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	createPath_deepWay_layer_by_layer_alt_5(beginId)
-	
-	var depthReached = cubeGraph.lastVisited
+	deepensPath_wideWay(beginId) # recompute connections from given id
+	var depthReached = cubeGraph.deepest
 	
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
 	
+	# TODO : set this spawn point parametric
 	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
 	var yCoordBase = 0
-	var zCoordBase = 0
+	var zCoordBase = -50
 	
 	var xCoord = xCoordBase
 	var yCoord = yCoordBase
@@ -90,14 +98,14 @@ func generate(sizeP:int):
 		#print(xCoord, " ", yCoord, " ", zCoord)
 		#print(cubeGraph.getNeighbors(i))
 		var cube = CubeCustom.new(
-				Vector3(xCoord,yCoord,zCoord), 
-				cubeGraph.getNeighbors(i),
-				cubeGraph.getColor(i), 
-				depthReached,
-				debug,
-				showWall,
-				triColor
-			)
+			Vector3(xCoord,yCoord,zCoord), 
+			cubeGraph.getNeighbors(i),
+			cubeGraph.getColor(i), 
+			depthReached,
+			debug,
+			showWall,
+			triColor
+		)
 		
 		add_child(cube)
 		mazeAll[i] = cube
@@ -113,18 +121,13 @@ func generate(sizeP:int):
 			zCoord -= gapBetweenCubeCenter
 	
 	var time_end = Time.get_ticks_msec()
-	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
+	print("100% in " + str((time_end - time_start)/1000) + "s " + \
+		str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
 	
-	deepensPath_wideWay(mazeAll, beginId) # recompute connections from id given
-	
-	depthReached = cubeGraph.lastVisited
-	
-	instantiatePyramidConnection_allNeighbors(mazeAll, depthReached)
+	instantiatePyramidConnection_allNeighbors(mazeAll)
 	
 	# reset to new location :
-	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase
-	yCoordBase = 0
-	zCoordBase = 0
+	xCoordBase = xCoordBase + gapBetweenCubeCenter * (sizeBase + 1)
 	xCoord = xCoordBase
 	yCoord = yCoordBase
 	zCoord = zCoordBase
@@ -137,14 +140,14 @@ func generate(sizeP:int):
 		
 		var cube = CubeCustom.new(
 		#var cube = TruncatedOctahedronCustom.new(
-					Vector3(xCoord,yCoord,zCoord), 
-					cubeGraph.getNeighborsConnection(i), 
-					cubeGraph.getColor(i), 
-					depthReached,
-					debug,
-					showWall,
-					triColor
-				)
+			Vector3(xCoord,yCoord,zCoord), 
+			cubeGraph.getNeighborsConnection(i), 
+			cubeGraph.getColor(i), 
+			depthReached,
+			debug,
+			showWall,
+			triColor
+		)
 		
 		add_child(cube)
 		maze[i] = cube
@@ -167,21 +170,15 @@ func generate(sizeP:int):
 	time_end = Time.get_ticks_msec()
 #	print(cubeGraph.colorsIds)
 #	print(cubeGraph.depths)
-	print("100% in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
+	print("100% in " + str((time_end - time_start)/1000) + "s "+ \
+		str((time_end - time_start)%1000) + "ms.")
 	
-	deepensPath_wideWay(maze, beginId) # recompute connections from id given
-	
-	depthReached = cubeGraph.lastVisited
-	
-	instantiatePyramidConnection(maze, depthReached)
+	instantiatePyramidConnection(maze)
 	
 	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
 	
-	
 	# reset to new location (for truncated octahedron):
 	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
-	yCoordBase = 0
-	zCoordBase = 0
 	xCoord = xCoordBase
 	yCoord = yCoordBase
 	zCoord = zCoordBase
@@ -189,14 +186,14 @@ func generate(sizeP:int):
 	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal): # TODO : truncatedOctahedronGraph (to file empty spaces with usable rooms)
 		var truncatedOctahedron = TruncatedOctahedronCustom.new(
-					Vector3(xCoord,yCoord,zCoord), 
-					cubeGraph.getNeighborsConnection(i), 
-					cubeGraph.getColor(i), 
-					depthReached,
-					debug,
-					showWall,
-					triColor
-				)
+			Vector3(xCoord,yCoord,zCoord), 
+			cubeGraph.getNeighborsConnection(i), 
+			cubeGraph.getColor(i), 
+			depthReached,
+			debug,
+			showWall,
+			triColor
+		)
 		
 		add_child(truncatedOctahedron)
 		mazeTruncOcta[i] = truncatedOctahedron
@@ -212,15 +209,16 @@ func generate(sizeP:int):
 			zCoord -= gapBetweenTruncatedOctahedronCenter
 		
 	time_end = Time.get_ticks_msec()
-	print("100% truncated octahedron in " + str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
+	print("100% truncated octahedron in " + \
+		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 	
-	deepensPath_wideWay(mazeTruncOcta, beginId) # recompute connections from id given
-	
-	depthReached = cubeGraph.lastVisited
-	
-	instantiatePyramidConnection(mazeTruncOcta, depthReached)
+	instantiatePyramidConnection(mazeTruncOcta)
 
 func _on_menu_generation(edgeSize) -> void:
+	clean()
+	generate(edgeSize)
+
+func clean() -> void:
 	maze.clear()
 	mazeAll.clear()
 	mazeTruncOcta.clear()
@@ -236,8 +234,6 @@ func _on_menu_generation(edgeSize) -> void:
 	
 	if cubeGraph != null:
 		cubeGraph.clean()
-	
-	generate(edgeSize)
 
 func exampleDebugforsize3():
 	if cubeGraph.size == 3 :
@@ -268,7 +264,7 @@ func exampleDebugforsize3():
 		cubeGraph.connectNeighbors(3, 6)
 
 		# floor 3
-		cubeGraph.connectNeighboreighbors(6, 15)
+		cubeGraph.connectNeighbors(6, 15)
 		cubeGraph.connectNeighbors(15, 24)
 		cubeGraph.connectNeighbors(24, 25)
 		cubeGraph.connectNeighbors(25, 26)
@@ -276,6 +272,43 @@ func exampleDebugforsize3():
 		cubeGraph.connectNeighbors(17, 8)
 		cubeGraph.connectNeighbors(8, 7)
 		cubeGraph.connectNeighbors(7, 16)
+		
+		var xCoordBase = -(gapBetweenCubeCenter * (3 / 2))
+		var yCoordBase = 0
+		
+		var xCoord = xCoordBase
+		var yCoord = yCoordBase
+		var zCoord = -50
+		
+		deepensPath_wideWay(18)
+		cubeGraph.setColorFromDepth()
+		var depthReached = cubeGraph.deepest
+		
+		for i in range(cubeGraph.getNbrRoom()):
+			var cube = CubeCustom.new(
+				Vector3(xCoord,yCoord,zCoord), 
+				cubeGraph.getNeighborsConnection(i),
+				cubeGraph.getColor(i), 
+				depthReached,
+				true,
+				false,
+				true
+			)
+			
+			add_child(cube)
+			maze[i] = cube
+			
+			xCoord += gapBetweenCubeCenter
+			
+			if i%3 == 3 - 1:
+				xCoord = xCoordBase
+				yCoord += gapBetweenCubeCenter
+			
+			if i%9 == 9 - 1:
+				yCoord = yCoordBase
+				zCoord -= gapBetweenCubeCenter
+				
+		instantiatePyramidConnection(maze)
 
 func createPath_deepWay(beginId: int = 0):
 	var neighborsToExplo = []
@@ -757,12 +790,10 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 			cubeGraph.setDepth(currId, depth)
 		stack.append(currId)
 
-# BE CAREFULL : this function reset depth and color of current cubeGraph 
+# BE CAREFULL : this function reset depth and color stored of cubeGraph 
 # using beginId for the new generation base : 0 by default
-func deepensPath_wideWay(mazeUsed, beginId: int = 0):
+func deepensPath_wideWay(beginId: int = 0):
 	cubeGraph.reset_Depth_Color_Visited()
-	
-	if mazeUsed.is_empty(): return
 	
 	var neighbors: Array[int]
 	var depth: int = 0
@@ -779,18 +810,18 @@ func deepensPath_wideWay(mazeUsed, beginId: int = 0):
 		neighbors.clear()
 		depth += 1
 		while(!neighborsNext.is_empty()) :
-			var currentNeighbor:int = neighborsNext.pop_back() # neighbors to proccess
+			var currentNeighbor:int = neighborsNext.pop_back() # neighbors to process
 			cubeGraph.setDepth(currentNeighbor, depth)
 			for i in cubeGraph.getNeighborsConnectionNotVisited(currentNeighbor):
 				neighbors.append(i)
 				cubeGraph.setVisited(i)
-				
 		
 	cubeGraph.setColorFromDepth()
 
-func instantiatePyramidConnection(mazeUsed, depthReached: int):
+func instantiatePyramidConnection(mazeUsed: Dictionary):
 	if !newConnectionDebug:
 		return
+	var depthReached = cubeGraph.deepest 
 	for id in mazeUsed:
 		for i in cubeGraph.getNextNeighbors(id):
 			# print(id, " ", i, " ", (mazeUsed[i].getCenter() - mazeUsed[id].getCenter()).normalized())
@@ -798,20 +829,21 @@ func instantiatePyramidConnection(mazeUsed, depthReached: int):
 				cubeGraph.instantiate_pyramid(
 					mazeUsed[id].getCenter(),
 					mazeUsed[i].getCenter() - mazeUsed[id].getCenter(),
-					cubeGraph.computeColor(cubeGraph.getDepth(id),depthReached)
+					cubeGraph.computeColor(cubeGraph.getDepth(id), depthReached)
 				)
 			)
 
-func instantiatePyramidConnection_allNeighbors(mazeUsed, depthReached: int):
+func instantiatePyramidConnection_allNeighbors(mazeUsed: Dictionary):
 	if !newConnectionDebug:
 		return
+	var depthReached = cubeGraph.deepest 
 	for id in mazeUsed:
 		for i in cubeGraph.getNeighbors(id):
-			if i > -1:
+			if i > -1 && cubeGraph.isFollowing(id, i):
 				add_child(
 					cubeGraph.instantiate_pyramid(
 						mazeUsed[id].getCenter(),
 						mazeUsed[i].getCenter() - mazeUsed[id].getCenter(),
-						cubeGraph.computeColor(cubeGraph.getDepth(id),depthReached)
+						cubeGraph.computeColor(cubeGraph.getDepth(id), depthReached)
 					)
 				)

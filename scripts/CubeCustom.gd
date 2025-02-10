@@ -5,7 +5,7 @@ class_name CubeCustom
 var connection = preload("res://scenes/connection.tscn")
 var wall = preload("res://scenes/wall.tscn")
 var sphere = preload("res://scenes/sphere.tscn")
-var distFromCenter = 5.2 
+static var distFromCenter = 5.2 
 var rotationAngle = PI/2
 var wallValue = -1
 var outSideWallValue = -2

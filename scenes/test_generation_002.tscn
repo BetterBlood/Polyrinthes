@@ -5,8 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://b0wgyq3xq5jsp" path="res://scenes/UI/menu.tscn" id="3_rp0dr"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yke84"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
 
 [sub_resource type="Sky" id="Sky_ar7i0"]
 sky_material = SubResource("ProceduralSkyMaterial_yke84")
