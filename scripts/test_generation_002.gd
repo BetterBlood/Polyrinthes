@@ -19,8 +19,8 @@ var gapBetweenCubeCenter = (CubeCustom.distFromCenter * 2 + 0.1) * \
 		gapBetweenRooms_multiplier
 var gapBetweenTruncatedOctahedronCenter = (17.5*2 + 0.25) * \
 		gapBetweenRooms_multiplier
-var wallV = -1 # -1 = wall
-var outWallV = -2 # -2 = ~ invisible walls (DEBUG)
+var wallV = -1 # -1 = wall (only -1 !!)
+var outWallV = -2 # -2 = ~ invisible walls (DEBUG), -1 visible walls
 
 var thread: Thread
 signal end_generate()
@@ -76,8 +76,9 @@ func generate(sizeP:int):
 	#createPath_deepWay_layer_by_layer_alt_1(beginId)
 	#createPath_deepWay_layer_by_layer_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
-	createPath_deepWay_layer_by_layer_alt_4(beginId)
+	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	#createPath_deepWay_layer_by_layer_alt_5(beginId)
+	createPath_deepWay_layer_by_layer_alt_6(beginId)
 	
 	deepensPath_wideWay(beginId) # recompute connections from given id
 	var depthReached = cubeGraph.deepest
@@ -581,10 +582,14 @@ func createPath_deepWay_layer_by_layer_alt_3(beginId: int = 0):
 				cubeGraph.setDepth(currId, currMaxDepth)
 				deepestId = currId
 				
-				if secondLayerTransitionId != lastSecondId && secondLayerTransitionId != lastDeepestId && cubeGraph.hasUpNeighbors(secondLayerTransitionId):
+				if secondLayerTransitionId != lastSecondId && \
+				   secondLayerTransitionId != lastDeepestId && \
+				   cubeGraph.hasUpNeighbors(secondLayerTransitionId):
 					cubeGraph.connectNeighbors(secondLayerTransitionId, 
 						cubeGraph.getUpNeighbors(secondLayerTransitionId))
 					lastSecondId = cubeGraph.getUpNeighbors(secondLayerTransitionId)
+				else:
+					lastSecondId = -1
 					
 				lastDeepestId = deepestId
 			continue
@@ -667,6 +672,8 @@ func createPath_deepWay_layer_by_layer_alt_4(beginId: int = 0):
 					   cubeGraph.hasUpNeighbors(secondLayerTransitionId[i]):
 						cubeGraph.connectNeighbors(secondLayerTransitionId[i], 
 							cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
+					else:
+						secondLayerTransitionId[i] = -1
 				for i in range(additionalConnections):
 					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
 				lastDeepestId = deepestId
@@ -689,88 +696,179 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 	var depth:int = 0
 	var deepestId = beginId
 	var currMaxDepth = 0
-	var deadendReached = false
 	
-	var prevMaxDepth = []
+	var lastSecondId = []
+	var lastDeepestId = deepestId
 	var secondLayerTransitionId = []
-	var indexForTansition = 0
-	var maxAdditionnalConnections = int(cubeGraph.size * (1/3.) - 1)
-	var currentAdditionnalConnection = randi_range(0, maxAdditionnalConnections)
+	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
+	var currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
 	
-	for i in range(maxAdditionnalConnections):
-		prevMaxDepth.append(0)
+	for i in range(maxAdditionalConnections):
 		secondLayerTransitionId.append(-1)
+		lastSecondId.append(-1)
 	
 	stack.append(currId)
-	cubeGraph.setProcessing(currId)
+	cubeGraph.setVisited(currId)
 	#print("d-setDepth(", currId, ",", depth, ")")
 	cubeGraph.setDepth(currId, depth)
 	
 	while not stack.is_empty():
-		
 		neighborsToExplo.clear()
 		# with "true" get only neighbors on the same layer
-		neighborsToExplo.append_array(cubeGraph.getNotProcNotVisiNeighbors(currId, true))
+		neighborsToExplo.append_array(cubeGraph.getNotVisitedNeighbors(currId, true))
+		depth = cubeGraph.getDepth(currId)
 		
 		if len(neighborsToExplo) == 0:
-			deadendReached = true
-			if currMaxDepth < depth :
-				prevMaxDepth = currMaxDepth
-				if currentAdditionnalConnection > 0 :
-					secondLayerTransitionId[indexForTansition] = deepestId
-					indexForTansition = (indexForTansition + 1)%currentAdditionnalConnection
+			if currMaxDepth < depth && currId != lastDeepestId && currId not in lastSecondId:
+				var indexForTransition = 0
+				var currSmallestDepth = cubeGraph.getNbrRoom() + 2
+				for i in range(currentAdditionalConnection):
+					if secondLayerTransitionId[i] == -1:
+						indexForTransition = i
+						break
+					if secondLayerTransitionId[i] != -1 && \
+					   currSmallestDepth > cubeGraph.getDepth(secondLayerTransitionId[i]):
+						indexForTransition = i
+						currSmallestDepth = cubeGraph.getDepth(secondLayerTransitionId[i])
+				if currentAdditionalConnection > 0:
+					secondLayerTransitionId[indexForTransition] = deepestId
 				
 				currMaxDepth = depth
 				deepestId = currId
-				#print("dead end: ", deepestId, " ", currMaxDepth)
-				if cubeGraph.getDepth(currId) == -1:
-					#print("e-setDepth(", currId, ",", depth, ")")
-					cubeGraph.setDepth(currId, depth)
 			
 			currId = stack.pop_back()
 			cubeGraph.setVisited(currId)
-			#cubeGraph.setDepth(currId, depth)
-			depth -= 1
 			
 			# when all nodes are allready visited (stack empty) and we are 
 			# back to the begining, connect the last updated node (means the 
 			# last dead end) with the upper layer if exist
 			if stack.is_empty() && cubeGraph.hasUpNeighbors(deepestId):
-				stack.append(cubeGraph.getUpNeighbors(deepestId))
-				cubeGraph.connectNeighbors(deepestId, stack.back())
-				cubeGraph.setVisited(stack.back())
-				currId = stack.back()
+				currId = cubeGraph.getUpNeighbors(deepestId)
+				stack.append(currId)
+				cubeGraph.connectNeighbors(deepestId, currId)
+				cubeGraph.setVisited(currId)
 				
-				depth = cubeGraph.getDepth(deepestId)
-				depth += 1
-				#print("c-setDepth(", currId, ",", depth, ")")
-				cubeGraph.setDepth(currId, depth)
+				currMaxDepth = cubeGraph.getDepth(deepestId) + 1
+				cubeGraph.setDepth(currId, currMaxDepth)
 				deepestId = currId
-				currMaxDepth = depth
 				
-				for i in range(currentAdditionnalConnection):
-					if secondLayerTransitionId[i] != -1 && secondLayerTransitionId[i] != 0 && cubeGraph.hasUpNeighbors(secondLayerTransitionId[i]):
+				for i in range(currentAdditionalConnection):
+					if secondLayerTransitionId[i] not in lastSecondId && \
+					   secondLayerTransitionId[i] != lastDeepestId && \
+					   cubeGraph.hasUpNeighbors(secondLayerTransitionId[i]):
 						cubeGraph.connectNeighbors(secondLayerTransitionId[i], 
 							cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
-					secondLayerTransitionId[i] = -1
+					else:
+						secondLayerTransitionId[i] = -1
+				for i in range(currentAdditionalConnection):
+					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
+				lastDeepestId = deepestId
 				# set random nbr of connection for the next transition layer
-				currentAdditionnalConnection = randi_range(0, maxAdditionnalConnections)
+				currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
 			continue
-		elif deadendReached:
-			depth += 1
-			deadendReached = false
 		
 		neighborsToExplo.shuffle()
 		
 		var newId = neighborsToExplo.pop_front()
 		cubeGraph.connectNeighbors(currId, newId)
-		cubeGraph.setProcessing(newId)
+		cubeGraph.setVisited(newId)
 		currId = newId
-		depth += 1
-		if cubeGraph.getDepth(currId) == -1:
-			#print("n-setDepth(", currId, ",", depth, ")")
-			cubeGraph.setDepth(currId, depth)
+		cubeGraph.setDepth(currId, depth + 1)
 		stack.append(currId)
+
+# random number of transition transitions between layers max : cubeGraph.size*(1/3)
+# shuffle the stack on deadend
+func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
+	var neighborsToExplo = []
+	var stack = []
+	var currId = beginId
+	var depth:int = 0
+	var deepestId = beginId
+	var currMaxDepth = 0
+	
+	var lastSecondId = []
+	var lastDeepestId = deepestId
+	var secondLayerTransitionId = []
+	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
+	var currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+	
+	for i in range(maxAdditionalConnections):
+		secondLayerTransitionId.append(-1)
+		lastSecondId.append(-1)
+	
+	stack.append(currId)
+	cubeGraph.setVisited(currId)
+	#print("d-setDepth(", currId, ",", depth, ")")
+	cubeGraph.setDepth(currId, depth)
+	
+	while not stack.is_empty():
+		neighborsToExplo.clear()
+		# with "true" get only neighbors on the same layer
+		neighborsToExplo.append_array(cubeGraph.getNotVisitedNeighbors(currId, true))
+		depth = cubeGraph.getDepth(currId)
+		
+		if len(neighborsToExplo) == 0:
+			if currMaxDepth < depth && currId != lastDeepestId && currId not in lastSecondId:
+				var indexForTransition = 0
+				var currSmallestDepth = cubeGraph.getNbrRoom() + 2
+				for i in range(currentAdditionalConnection):
+					if secondLayerTransitionId[i] == -1:
+						indexForTransition = i
+						break
+					if secondLayerTransitionId[i] != -1 && \
+					   currSmallestDepth > cubeGraph.getDepth(secondLayerTransitionId[i]):
+						indexForTransition = i
+						currSmallestDepth = cubeGraph.getDepth(secondLayerTransitionId[i])
+				if currentAdditionalConnection > 0:
+					secondLayerTransitionId[indexForTransition] = deepestId
+				
+				currMaxDepth = depth
+				deepestId = currId
+			
+			stack.shuffle()
+			currId = stack.pop_back()
+			#cubeGraph.setVisited(currId)
+			
+			# when all nodes are allready visited (stack empty) and we are 
+			# back to the begining, connect the last updated node (means the 
+			# last dead end) with the upper layer if exist
+			if stack.is_empty() && cubeGraph.hasUpNeighbors(deepestId):
+				currId = cubeGraph.getUpNeighbors(deepestId)
+				stack.append(currId)
+				cubeGraph.connectNeighbors(deepestId, currId)
+				cubeGraph.setVisited(currId)
+				
+				currMaxDepth = cubeGraph.getDepth(deepestId) + 1
+				cubeGraph.setDepth(currId, currMaxDepth)
+				deepestId = currId
+				
+				for i in range(currentAdditionalConnection):
+					if secondLayerTransitionId[i] not in lastSecondId && \
+					   secondLayerTransitionId[i] != lastDeepestId && \
+					   cubeGraph.hasUpNeighbors(secondLayerTransitionId[i]):
+						cubeGraph.connectNeighbors(secondLayerTransitionId[i], 
+							cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
+						print("connect: ", secondLayerTransitionId[i], " and: ", cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
+					else:
+						secondLayerTransitionId[i] = -1
+				print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
+				for i in range(currentAdditionalConnection):
+					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
+				lastDeepestId = deepestId
+				# set random nbr of connection for the next transition layer
+				currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+				print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
+			continue
+		
+		neighborsToExplo.shuffle()
+		
+		var newId = neighborsToExplo.pop_front()
+		cubeGraph.connectNeighbors(currId, newId)
+		cubeGraph.setVisited(newId)
+		currId = newId
+		cubeGraph.setDepth(currId, depth + 1)
+		stack.append(currId)
+
 
 # BE CAREFULL : this function reset depth and color stored of cubeGraph 
 # using beginId for the new generation base : 0 by default
