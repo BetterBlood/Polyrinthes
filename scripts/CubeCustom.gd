@@ -2,20 +2,20 @@ extends Node
 
 class_name CubeCustom
 
-var connection = preload("res://scenes/connection.tscn")
-var wall = preload("res://scenes/wall.tscn")
-var sphere = preload("res://scenes/sphere.tscn")
-static var distFromCenter = 5.2 
-var rotationAngle = PI/2
-var wallValue = -1
-var outSideWallValue = -2
+const connection = preload("res://scenes/connection.tscn")
+const wall = preload("res://scenes/wall.tscn")
+const sphere = preload("res://scenes/sphere.tscn")
+const distFromCenter = 5.2 
+const rotationAngle = PI/2
+const wallValue = -1
+const outSideWallValue = -2
 
 var _debug:bool
 var _showWall:bool
 var _triColor:bool
 
-var _connection:bool = false
-var _pyramid:bool = false
+const _connection:bool = false
+const _pyramid:bool = false
 
 var _center: Vector3
 
@@ -68,7 +68,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(0,0,distFromCenter), Vector3(-2*rotationAngle,0,0))
+			instantiate_wall(center_pos, Vector3(0,0,distFromCenter), Vector3(-2*rotationAngle,0,0))
 	elif _debug && arr[0] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-2*rotationAngle,0,0), color)
@@ -76,7 +76,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,-2*rotationAngle,0), color)
 	if (arr[1] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(0,0,-distFromCenter), Vector3(0,0,0))
+			instantiate_wall(center_pos, Vector3(0,0,-distFromCenter), Vector3(0,0,0))
 	elif _debug && arr[1] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,0,0), color)
@@ -85,7 +85,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	
 	if (arr[2] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(-distFromCenter,0,0), Vector3(0,rotationAngle,0))
+			instantiate_wall(center_pos, Vector3(-distFromCenter,0,0), Vector3(0,rotationAngle,0))
 	elif _debug && arr[2] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
@@ -93,7 +93,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(distFromCenter,0,0), Vector3(0,-rotationAngle,0))
+			instantiate_wall(center_pos, Vector3(distFromCenter,0,0), Vector3(0,-rotationAngle,0))
 	elif _debug && arr[3] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
@@ -102,7 +102,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	
 	if (arr[4] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(0,-distFromCenter,0), Vector3(rotationAngle,0,0))
+			instantiate_wall(center_pos, Vector3(0,-distFromCenter,0), Vector3(rotationAngle,0,0))
 	elif _debug && arr[4] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-rotationAngle,0,0), color)
@@ -110,14 +110,14 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,0,-rotationAngle), color) # (._. )
 	if (arr[5] == wallValue):
 		if _showWall:
-			instanciate_wall(center_pos, Vector3(0,distFromCenter,0), Vector3(-rotationAngle,0,0))
+			instantiate_wall(center_pos, Vector3(0,distFromCenter,0), Vector3(-rotationAngle,0,0))
 	elif _debug && arr[5] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
 		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,rotationAngle), color) # (._o )
 
-func instanciate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
+func instantiate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	var wallTmp = wall.instantiate()
 	
 	wallTmp.set_position(center_pos + pos)

@@ -2,26 +2,29 @@ extends Node
 
 class_name TruncatedOctahedronCustom
 
-var connection = preload("res://scenes/connection.tscn")
-var squareWall = preload("res://scenes/wall.tscn")
-var hexagonWall = preload("res://scenes/hexagon.tscn")
-var sphere = preload("res://scenes/sphere.tscn")
+const connection = preload("res://scenes/connection.tscn")
+const squareWall = preload("res://scenes/wall.tscn")
+const hexagonWall = preload("res://scenes/hexagon.tscn")
+const sphere = preload("res://scenes/sphere.tscn")
 
-var distFromCenter_square = 17.5
-var distFromCenter_hexagon = 8.8 
+const distFromCenter_square = 17.5
+const distFromCenter_hexagon = 8.8 
 
-var rotationAngle = PI/2
-var secondRotAngle = PI*7/36
+const rotationAngle = PI/2
+const secondRotAngle = PI*7/36
 
-var wallValue = -1
-var outSideWallValue = -2
+const squareWall_scaling:= Vector3(1.2, 1.2, 1.2)
+const hexagonWall_scaling:= Vector3(0.5, 0.5, 0.5)
+
+const wallValue = -1
+const outSideWallValue = -2
 
 var _debug:bool
 var _showWall:bool
 var _triColor:bool
 
-var _connection:bool = false
-var _pyramid:bool = false
+const _connection:bool = false
+const _pyramid:bool = false
 
 var _center: Vector3
 
@@ -52,7 +55,7 @@ func instantiate_squareWall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	wallTmp.set_position(center_pos + pos)
 	wallTmp.set_rotation(rot)
 	
-	wallTmp.set_scale(Vector3(1.2, 1.2, 1.2))
+	wallTmp.set_scale(squareWall_scaling)
 	
 	add_child(wallTmp)
 
@@ -62,7 +65,7 @@ func instantiate_hexagonWall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	
 	wallTmp.set_position(center_pos + pos)
 	wallTmp.set_rotation(rot)
-	wallTmp.set_scale(Vector3(0.5, 0.5, 0.5))
+	wallTmp.set_scale(hexagonWall_scaling)
 	
 	add_child(wallTmp)
 

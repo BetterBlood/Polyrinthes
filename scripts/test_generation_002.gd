@@ -60,7 +60,7 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+	var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 	var triColor:bool = true
 	
 #	if (sizeBase == 3): 
@@ -848,16 +848,16 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 					   cubeGraph.hasUpNeighbors(secondLayerTransitionId[i]):
 						cubeGraph.connectNeighbors(secondLayerTransitionId[i], 
 							cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
-						print("connect: ", secondLayerTransitionId[i], " and: ", cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
+						#print("connect: ", secondLayerTransitionId[i], " and: ", cubeGraph.getUpNeighbors(secondLayerTransitionId[i]))
 					else:
 						secondLayerTransitionId[i] = -1
-				print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
+				#print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
 				for i in range(currentAdditionalConnection):
 					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
 				lastDeepestId = deepestId
 				# set random nbr of connection for the next transition layer
 				currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
-				print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
+				#print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
 			continue
 		
 		neighborsToExplo.shuffle()

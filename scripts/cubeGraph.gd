@@ -204,23 +204,23 @@ func connectNeighbors(id1, id2):
 	if id1 + 1 == id2:
 		neighborsConnected[id1][3] = id2
 		neighborsConnected[id2][2] = id1
-	if id1 - 1 == id2:
+	elif id1 - 1 == id2:
 		neighborsConnected[id1][2] = id2
 		neighborsConnected[id2][3] = id1
 	
 	# backward, forward
-	if id1 + getNbrRoomOnASide() == id2:
+	elif id1 + getNbrRoomOnASide() == id2:
 		neighborsConnected[id1][1] = id2
 		neighborsConnected[id2][0] = id1
-	if id1 - getNbrRoomOnASide() == id2:
+	elif id1 - getNbrRoomOnASide() == id2:
 		neighborsConnected[id1][0] = id2
 		neighborsConnected[id2][1] = id1
 	
 	# down, up
-	if id1 + size == id2:
+	elif id1 + size == id2:
 		neighborsConnected[id1][5] = id2
 		neighborsConnected[id2][4] = id1
-	if id1 - size == id2:
+	elif id1 - size == id2:
 		neighborsConnected[id1][4] = id2
 		neighborsConnected[id2][5] = id1
 
@@ -319,7 +319,7 @@ func isFollowing(id_first: int, id_second: int):
 	return isInRange(id_first) && isInRange(id_second) && getDepth(id_first) < getDepth(id_second)
 
 func hasUpNeighbors(id: int):
-	return neighbors[id][5] != -1
+	return neighbors[id][5] > -1
 
 func getUpNeighbors(id: int):
 	return neighbors[id][5]
@@ -327,6 +327,7 @@ func getUpNeighbors(id: int):
 func reset_Depth_Color_Visited():
 	lastVisited = 0
 	deepest = 0
+	colorId = 0
 	depths.clear()
 	colorsIds.clear()
 	visited.clear()
@@ -336,16 +337,19 @@ func reset_Depth_Color_Visited():
 		visited.append(false)
 
 func resetDepth():
+	deepest = 0
 	depths.clear()
 	for i in range(getNbrRoom()):
 		depths.append(-1)
 
 func resetColor():
+	colorId = 0
 	colorsIds.clear()
 	for i in range(getNbrRoom()):
 		colorsIds.append(-1)
 
 func resetVisited():
+	lastVisited = 0
 	visited.clear()
 	for i in range(getNbrRoom()):
 		visited.append(false)
