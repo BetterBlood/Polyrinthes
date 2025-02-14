@@ -870,7 +870,7 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 		stack.append(currId)
 
 
-# BE CAREFULL : this function reset depth and color stored of cubeGraph 
+# BE CAREFUL : this function reset depth and color stored of cubeGraph 
 # using beginId for the new generation base : 0 by default
 func deepensPath_wideWay(beginId: int = 0):
 	cubeGraph.reset_Depth_Color_Visited()
