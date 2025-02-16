@@ -60,7 +60,7 @@ func generate(sizeP:int):
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+	var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
 	var triColor:bool = true
 	
 #	if (sizeBase == 3): 
@@ -69,19 +69,29 @@ func generate(sizeP:int):
 	
 	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
+	var time_start = Time.get_ticks_msec()
 	#createPath_deepWay(beginId)
 	#createPath_deepWay_alt_1(beginId)
-	#createPath_deepWay_alt_2(beginId)
+	createPath_deepWay_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer(beginId)
 	#createPath_deepWay_layer_by_layer_alt_1(beginId)
 	#createPath_deepWay_layer_by_layer_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
 	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	#createPath_deepWay_layer_by_layer_alt_5(beginId)
-	createPath_deepWay_layer_by_layer_alt_6(beginId)
+	#createPath_deepWay_layer_by_layer_alt_6(beginId)
+	var time_end = Time.get_ticks_msec()
+	print("createPath in " + str((time_end - time_start)/1000) + "s " + \
+		str((time_end - time_start)%1000) + "ms.")
 	
+	time_start = Time.get_ticks_msec()
 	deepensPath_wideWay(beginId) # recompute connections from given id
+	time_end = Time.get_ticks_msec()
+	print("deepensPath in " + str((time_end - time_start)/1000) + "s " + \
+		str((time_end - time_start)%1000) + "ms.")
+		
 	var depthReached = cubeGraph.deepest
+	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
 	
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
@@ -95,8 +105,7 @@ func generate(sizeP:int):
 	var yCoord = yCoordBase
 	var zCoord = zCoordBase
 	
-	print("\nfirst generation")
-	var time_start = Time.get_ticks_msec()
+	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal):
 		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
 		#print(xCoord, " ", yCoord, " ", zCoord)
@@ -124,11 +133,15 @@ func generate(sizeP:int):
 			yCoord = yCoordBase
 			zCoord -= gapBetweenCubeCenter
 	
-	var time_end = Time.get_ticks_msec()
-	print("100% in " + str((time_end - time_start)/1000) + "s " + \
-		str((time_end - time_start)%1000) + "ms.\n\nsecond generation")
+	time_end = Time.get_ticks_msec()
+	print("Display with all neighbors: 100% in " + str((time_end - time_start)/1000) + "s " + \
+		str((time_end - time_start)%1000) + "ms.")
 	
+	time_start = Time.get_ticks_msec()
 	instantiatePyramidConnection_allNeighbors(mazeAll)
+	time_end = Time.get_ticks_msec()
+	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s " + \
+		str((time_end - time_start)%1000) + "ms.")
 	
 	# reset to new location :
 	xCoordBase = xCoordBase + gapBetweenCubeCenter * (sizeBase + 1)
@@ -174,12 +187,14 @@ func generate(sizeP:int):
 	time_end = Time.get_ticks_msec()
 #	print(cubeGraph.colorsIds)
 #	print(cubeGraph.depths)
-	print("100% in " + str((time_end - time_start)/1000) + "s "+ \
+	print("100% cube in " + str((time_end - time_start)/1000) + "s "+ \
 		str((time_end - time_start)%1000) + "ms.")
 	
+	time_start = Time.get_ticks_msec()
 	instantiatePyramidConnection(maze)
-	
-	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
+	time_end = Time.get_ticks_msec()
+	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
+		str((time_end - time_start)%1000) + "ms.")
 	
 	# reset to new location (for truncated octahedron):
 	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
@@ -216,7 +231,11 @@ func generate(sizeP:int):
 	print("100% truncated octahedron in " + \
 		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 	
+	time_start = Time.get_ticks_msec()
 	instantiatePyramidConnection(mazeTruncOcta)
+	time_end = Time.get_ticks_msec()
+	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
+		str((time_end - time_start)%1000) + "ms.\n\n")
 
 func _on_menu_generation(edgeSize) -> void:
 	clean()

@@ -2,7 +2,8 @@
 ## Polyrinthes
 
 ### Génération de labyrinthe en 3D
-
+#### Commandes:
+maintenir la touche "tab" puis choisir le nombre de salle au déplacement de la souris, relacher "tab" pour lancer une génération avec le nombre de salle correspondant au nombre mis en évidence sur la roue de sélection. 
 Débug mesh en couleur :
 
 #### Débug, taille de 3
