@@ -10,7 +10,7 @@ var directionnalInputs = Vector3(0,0,0)
 
 
 var godMode : bool
-const godModeSpeedMultiplier = 15
+@export var godModeSpeedMultiplier = 15
 @onready var collisionShape := $CollisionShape3D
 
 # Get the gravity from the project settings to be synced with RigidBody nodes.
@@ -55,16 +55,21 @@ func _physics_process(delta):
 	directionnalInputs.y = vertical
 	
 	var direction = (get_global_transform().basis * directionnalInputs).normalized()
-	if direction:
+	
+	if direction.x:
 		velocity.x = direction.x * SPEED * (godModeSpeedMultiplier if godMode else 1)
-		velocity.z = direction.z * SPEED * (godModeSpeedMultiplier if godMode else 1)
-		
-		if godMode:
-			velocity.y = direction.y * SPEED * godModeSpeedMultiplier
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
+		
+	if direction.z:
+		velocity.z = direction.z * SPEED * (godModeSpeedMultiplier if godMode else 1)
+	else:
 		velocity.z = move_toward(velocity.z, 0, SPEED)
-		if godMode:
+	
+	if godMode:
+		if direction.y:
+			velocity.y = direction.y * SPEED * godModeSpeedMultiplier
+		else:
 			velocity.y = move_toward(velocity.y, 0, SPEED)
 
 	move_and_slide()

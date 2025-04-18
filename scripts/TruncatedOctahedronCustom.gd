@@ -103,7 +103,7 @@ func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	add_child(connectionTmp)
 
 func instantiate_pyramid(center_pos: Vector3, rot: Vector3, color: Vector3):
-	var distance: int = distFromCenter_square
+	var distance: float = distFromCenter_square
 	var base_distFromCenter: int = 1
 	var vertices = PackedVector3Array()
 	# 4 faces :

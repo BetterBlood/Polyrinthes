@@ -5,19 +5,19 @@ class_name CubeCustom
 const connection = preload("res://scenes/connection.tscn")
 const wall = preload("res://scenes/wall.tscn")
 const sphere = preload("res://scenes/sphere.tscn")
-const distFromCenter = 5.2 
-const rotationAngle = PI/2
-const wallValue = -1
-const outSideWallValue = -2
+const distFromCenter: float = 5.2 
+const rotationAngle: float = PI/2
+const wallValue: int = -1
+const outSideWallValue: int = -2
 
-var _debug:bool
-var _showWall:bool
-var _triColor:bool
+var _debug: bool
+var _showWall: bool
+var _triColor: bool
 
-const _connection:bool = false
-const _pyramid:bool = false
+const _connection: bool = false
+const _pyramid: bool = false
 
-var _center: Vector3
+var _center: Vector3 = Vector3()
 
 func _init(center_pos: Vector3, arr: Array[int], depth: float, deepest: float,
 			debug: bool = false, showWall: bool = true, triColor: bool = true):
@@ -137,7 +137,7 @@ func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	add_child(connectionTmp)
 
 func instantiate_pyramid(center_pos: Vector3, rot: Vector3, color: Vector3):
-	var distance: int = distFromCenter
+	var distance: float = distFromCenter
 	var base_distFromCenter: int = 1
 	var vertices = PackedVector3Array()
 	# 4 faces :

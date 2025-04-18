@@ -1,0 +1,153 @@
+[gd_scene load_steps=2 format=3 uid="uid://dh0m82ekygpeb"]
+
+[ext_resource type="PackedScene" uid="uid://cfyxkets7uq6h" path="res://scenes/wall.tscn" id="1_5jx3r"]
+
+[node name="Corridor" type="Node3D"]
+
+[node name="LeftWall" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 2.6)
+
+[node name="Wall" parent="LeftWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Wall2" parent="LeftWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 5.25, 0, 0)
+
+[node name="Wall3" parent="LeftWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, -5.25, 0, 0)
+
+[node name="RightWall" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 13, 0, -2.6)
+
+[node name="Wall" parent="RightWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Wall2" parent="RightWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 5.25, 0, 0)
+
+[node name="Wall3" parent="RightWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, -5.25, 0, 0)
+
+[node name="TopWall" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 13, 2.6, 0)
+
+[node name="Wall" parent="TopWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Wall2" parent="TopWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 5.25, 0, 0)
+
+[node name="Wall3" parent="TopWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, -5.25, 0, 0)
+
+[node name="BotWall" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 13, -2.6, 0)
+
+[node name="Wall" parent="BotWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Wall2" parent="BotWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, 5.25, 0, 0)
+
+[node name="Wall3" parent="BotWall" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(0.499723, 0, 0, 0, 0.500129, 0, 0, 0, 1, -5.25, 0, 0)
+
+[node name="EntranceFront" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 0, 0)
+
+[node name="EntrancePart" type="Node3D" parent="EntranceFront"]
+
+[node name="Wall" parent="EntranceFront/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, 3.9291)
+
+[node name="Wall3" parent="EntranceFront/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceFront/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="Wall5" parent="EntranceFront/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -3.94168)
+
+[node name="EntrancePart3" type="Node3D" parent="EntranceFront"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
+
+[node name="Wall" parent="EntranceFront/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, 3.9291)
+
+[node name="Wall3" parent="EntranceFront/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceFront/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="Wall5" parent="EntranceFront/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -3.94168)
+
+[node name="EntrancePart2" type="Node3D" parent="EntranceFront"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+
+[node name="Wall3" parent="EntranceFront/EntrancePart2" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceFront/EntrancePart2" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="EntrancePart4" type="Node3D" parent="EntranceFront"]
+transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
+
+[node name="Wall3" parent="EntranceFront/EntrancePart4" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceFront/EntrancePart4" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="EntranceBack" type="Node3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 13, 0, 0)
+
+[node name="EntrancePart" type="Node3D" parent="EntranceBack"]
+
+[node name="Wall" parent="EntranceBack/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, 3.9291)
+
+[node name="Wall3" parent="EntranceBack/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceBack/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="Wall5" parent="EntranceBack/EntrancePart" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -3.94168)
+
+[node name="EntrancePart3" type="Node3D" parent="EntranceBack"]
+transform = Transform3D(1, 0, 0, 0, -1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0)
+
+[node name="Wall" parent="EntranceBack/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, 3.9291)
+
+[node name="Wall3" parent="EntranceBack/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceBack/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="Wall5" parent="EntranceBack/EntrancePart3" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -3.94168)
+
+[node name="EntrancePart2" type="Node3D" parent="EntranceBack"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+
+[node name="Wall3" parent="EntranceBack/EntrancePart2" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceBack/EntrancePart2" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
+
+[node name="EntrancePart4" type="Node3D" parent="EntranceBack"]
+transform = Transform3D(1, 0, 0, 0, 1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0)
+
+[node name="Wall3" parent="EntranceBack/EntrancePart4" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.928, 1.29596)
+
+[node name="Wall4" parent="EntranceBack/EntrancePart4" instance=ExtResource("1_5jx3r")]
+transform = Transform3D(-1.09278e-08, 0, 1, 0, 0.25, 0, -0.25, 0, -4.37114e-08, 7.8, 3.92845, -1.33438)
