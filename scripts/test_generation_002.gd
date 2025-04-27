@@ -2,9 +2,9 @@ extends Node3D
 const CubeCustom := preload("res://scripts/CubeCustom.gd")
 const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
-const wall = preload("res://scenes/wall.tscn")
+const wall = preload("res://scenes/wall.tscn") # DEBUG
 const corridor = preload("res://scenes/Test/corridor.tscn")
-const sphere = preload("res://scenes/sphere.tscn")
+const sphere = preload("res://scenes/sphere.tscn") # DEBUG
 var cubeGraph: CubeGraph
 
 const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn") # DEBUG
@@ -17,23 +17,64 @@ var size = 3 # default size
 # 10.5 : normal spacing for cube rooms
 # 21 : spacing to add gap between cube rooms
 var gapBetweenRooms_multiplier = 1 # 1 for no gap, other value for DEBUG
-var corridor_used: bool = true
 var corridor_length = 15.6
+
+# SETUP for 3x3 debug static with corridors and all walls
+#var debug_static_3x3 = true
+#var corridor_used: bool = true
+#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
+
+# SETUP for 3x3 debug static with corridors, outside walls open
+#var debug_static_3x3 = true
+#var corridor_used: bool = true
+#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
+
+# SETUP debug without corridors, with all walls
+#var debug_static_3x3 = false
+#var corridor_used: bool = false
+#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
+
+# SETUP debug without corridors, without exteriors walls
+#var debug_static_3x3 = false
+#var corridor_used: bool = false
+#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
+
+# SETUP debug without corridors, without walls
+var debug_static_3x3 = false
+var corridor_used: bool = false
+var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+var debug: bool = true
+var newConnectionDebug: bool = true
+var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+var triColor:bool = true
+
+
+var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
 var gapBetweenCubeCenter = (CubeCustom.distFromCenter * 2 + 0.1) * \
 		gapBetweenRooms_multiplier
-var gapBetweenTruncatedOctahedronCenter = (17.5*2 + 0.25) * \
+var gapBetweenCubeCenter_with_corridor = gapBetweenCubeCenter + corridor_length
+var gapBetweenTruncatedOctahedronCenter = \
+		(TruncatedOctahedronCustom.distFromCenter_square*2 + 0.25) * \
 		gapBetweenRooms_multiplier
-var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
-var outWallV = -2 # -2 = ~ invisible walls (DEBUG), -1 visible walls
 
 var thread: Thread
 signal end_generate()
-
-var debug: bool = true
-var newConnectionDebug: bool = true
-
-var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
-var triColor:bool = true
 
 
 # Called when the node enters the scene tree for the first time.
@@ -55,6 +96,16 @@ func _ready(): # (backward, forward, left, right, down, up)
 #	)
 #
 #	add_child(truncOctaCust)
+	if debug_static_3x3:
+		var colorBasedOnDepth = true
+		cubeGraph = CubeGraph.new(size, wallV, outWallV, 6, colorBasedOnDepth)
+		
+		if corridor_used:
+			gapBetweenCubeCenter = gapBetweenCubeCenter_with_corridor
+		else:
+			gapBetweenCubeCenter = gapBetweenCubeCenter_with_corridor - corridor_length
+		exampleDebugforsize3()
+	
 	pass
 
 func _process(_delta):
@@ -66,14 +117,6 @@ func generate(sizeP:int):
 	var sizeBase = cubeGraph.size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
-	
-	
-	if corridor_used:
-		gapBetweenCubeCenter += corridor_length
-	
-	if (sizeBase == 3): 
-		exampleDebugforsize3()
-		return
 	
 	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
@@ -314,7 +357,9 @@ func exampleDebugforsize3():
 		
 		var sphereStart = sphere.instantiate()
 		sphereStart.get_child(0).mesh.material.albedo_color = Color(1, 1, 1, 1)
-		sphereStart.set_position(Vector3(0 + xCoord, 0 + yCoord, gapBetweenCubeCenter*-2 + zCoord))
+		sphereStart.set_position(
+			Vector3(0 + xCoord, 0 + yCoord, gapBetweenCubeCenter*-2 + zCoord)
+		)
 		add_child(sphereStart)
 		
 		deepensPath_wideWay(18)
@@ -964,7 +1009,6 @@ func instantiatePyramidConnection(mazeUsed: Dictionary):
 func instantiate_corridors(mazeUsed: Dictionary):
 	if !newConnectionDebug:
 		return
-	var depthReached = cubeGraph.deepest 
 	for id in mazeUsed:
 		for i in cubeGraph.getNextNeighbors(id):
 			instantiate_corridor(
