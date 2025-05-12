@@ -3,7 +3,7 @@ const CubeCustom := preload("res://scripts/CubeCustom.gd")
 const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
 const wall = preload("res://scenes/wall.tscn") # DEBUG
-const corridor = preload("res://scenes/Test/corridor.tscn")
+const corridor = preload("res://scenes/Test/corridor.tscn") # TEST & DEBUG
 const sphere = preload("res://scenes/sphere.tscn") # DEBUG
 var cubeGraph: CubeGraph
 
@@ -47,22 +47,31 @@ var corridor_length = 15.6
 #var triColor:bool = true
 
 # SETUP debug without corridors, without exteriors walls
-#var debug_static_3x3 = false
-#var corridor_used: bool = false
-#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
-#var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
-
-# SETUP debug without corridors, without walls
 var debug_static_3x3 = false
 var corridor_used: bool = false
 var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
 var debug: bool = true
 var newConnectionDebug: bool = true
-var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 var triColor:bool = true
+
+# SETUP debug without corridors, without walls
+#var debug_static_3x3 = false
+#var corridor_used: bool = false
+#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
+#var newConnectionDebug: bool = true
+#var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
+
+# SETUP normal mode
+#var debug_static_3x3 = false
+#var corridor_used: bool = false
+#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = false
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
 
 
 var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
@@ -123,14 +132,14 @@ func generate(sizeP:int):
 	var time_start = Time.get_ticks_msec()
 	#createPath_deepWay(beginId)
 	#createPath_deepWay_alt_1(beginId)
-	#createPath_deepWay_alt_2(beginId)
+	createPath_deepWay_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer(beginId)
 	#createPath_deepWay_layer_by_layer_alt_1(beginId)
 	#createPath_deepWay_layer_by_layer_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
 	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	#createPath_deepWay_layer_by_layer_alt_5(beginId)
-	createPath_deepWay_layer_by_layer_alt_6(beginId)
+	#createPath_deepWay_layer_by_layer_alt_6(beginId)
 	
 	var time_end = Time.get_ticks_msec()
 	print("createPath in " + str((time_end - time_start)/1000) + "s " + \
@@ -189,11 +198,12 @@ func generate(sizeP:int):
 	print("Display with all neighbors: 100% in " + str((time_end - time_start)/1000) + "s " + \
 		str((time_end - time_start)%1000) + "ms.")
 	
-	time_start = Time.get_ticks_msec()
-	instantiatePyramidConnection_allNeighbors(mazeAll)
-	time_end = Time.get_ticks_msec()
-	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s " + \
-		str((time_end - time_start)%1000) + "ms.")
+	if debug:
+		time_start = Time.get_ticks_msec()
+		instantiatePyramidConnection_allNeighbors(mazeAll)
+		time_end = Time.get_ticks_msec()
+		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s " + \
+			str((time_end - time_start)%1000) + "ms.")
 	
 	# reset to new location :
 	xCoordBase = xCoordBase + gapBetweenCubeCenter * (sizeBase + 1)
@@ -242,11 +252,12 @@ func generate(sizeP:int):
 	print("100% cube in " + str((time_end - time_start)/1000) + "s "+ \
 		str((time_end - time_start)%1000) + "ms.")
 	
-	time_start = Time.get_ticks_msec()
-	instantiatePyramidConnection(maze)
-	time_end = Time.get_ticks_msec()
-	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
-		str((time_end - time_start)%1000) + "ms.")
+	if debug:
+		time_start = Time.get_ticks_msec()
+		instantiatePyramidConnection(maze)
+		time_end = Time.get_ticks_msec()
+		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
+			str((time_end - time_start)%1000) + "ms.")
 	
 	# reset to new location (for truncated octahedron):
 	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
@@ -283,11 +294,12 @@ func generate(sizeP:int):
 	print("100% truncated octahedron in " + \
 		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
 	
-	time_start = Time.get_ticks_msec()
-	instantiatePyramidConnection(mazeTruncOcta)
-	time_end = Time.get_ticks_msec()
-	print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
-		str((time_end - time_start)%1000) + "ms.\n\n")
+	if debug:
+		time_start = Time.get_ticks_msec()
+		instantiatePyramidConnection(mazeTruncOcta)
+		time_end = Time.get_ticks_msec()
+		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
+			str((time_end - time_start)%1000) + "ms.\n\n")
 
 func _on_menu_generation(edgeSize) -> void:
 	clean()
