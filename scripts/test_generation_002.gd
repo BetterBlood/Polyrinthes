@@ -47,22 +47,22 @@ var corridor_length = 15.6
 #var triColor:bool = true
 
 # SETUP debug without corridors, without exteriors walls
-var debug_static_3x3 = false
-var corridor_used: bool = false
-var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-var debug: bool = true
-var newConnectionDebug: bool = true
-var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-var triColor:bool = true
-
-# SETUP debug without corridors, without walls
 #var debug_static_3x3 = false
 #var corridor_used: bool = false
 #var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
 #var debug: bool = true
 #var newConnectionDebug: bool = true
-#var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 #var triColor:bool = true
+
+# SETUP debug without corridors, without walls
+var debug_static_3x3 = false
+var corridor_used: bool = false
+var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+var debug: bool = true
+var newConnectionDebug: bool = true
+var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
+var triColor:bool = true
 
 # SETUP normal mode
 #var debug_static_3x3 = false
@@ -85,9 +85,15 @@ var gapBetweenTruncatedOctahedronCenter = \
 var thread: Thread
 signal end_generate()
 
+var rng = RandomNumberGenerator.new()
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
+	
+	#rng.seed = hash("DEBUG")
+	#print(rng.get_seed())
+	
 	#generate(size)
 	
 #	var truncOcta = TruncatedOctahedron.instantiate()
@@ -121,6 +127,8 @@ func _process(_delta):
 	pass
 
 func generate(sizeP:int):
+	rng.seed = hash("TEST")
+	
 	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
 	var sizeBase = cubeGraph.size
@@ -439,9 +447,8 @@ func createPath_deepWay(beginId: int = 0):
 			continue
 		
 		stack.append(currId)
-		neighborsToExplo.shuffle()
 		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -467,9 +474,8 @@ func createPath_deepWay_alt_1(beginId: int = 0):
 			continue
 		
 		stack.append(currId)
-		neighborsToExplo.shuffle()
 		
-		newId = neighborsToExplo.pop_front()
+		newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		var prevId = currId
@@ -479,9 +485,8 @@ func createPath_deepWay_alt_1(beginId: int = 0):
 		if i >= cubeGraph.getNbrRoomOnASide() && not neighborsToExplo.is_empty():
 			#print("alt Way ?")
 			stack.append(currId)
-			neighborsToExplo.shuffle()
 			
-			newId = neighborsToExplo.pop_front()
+			newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 			cubeGraph.connectNeighbors(prevId, newId)
 			cubeGraph.setVisited(newId)
 			currId = newId
@@ -501,14 +506,12 @@ func createPath_deepWay_alt_2(beginId: int = 0):
 		neighborsToExplo.append_array(cubeGraph.getNotVisitedNeighbors(currId))
 		
 		if len(neighborsToExplo) == 0:
-			stack.shuffle()
-			currId = stack.pop_back()
+			currId = stack.pop_at(rng.randi() % stack.size())
 			continue
 		
 		stack.append(currId)
-		neighborsToExplo.shuffle()
 		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -545,9 +548,8 @@ func createPath_deepWay_layer_by_layer(beginId: int = 0):
 			continue
 		
 		stack.append(currId)
-		neighborsToExplo.shuffle()
 		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -581,9 +583,8 @@ func createPath_deepWay_layer_by_layer_alt_1(beginId: int = 0):
 			continue
 		
 		stack.append(currId)
-		neighborsToExplo.shuffle()
 		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -633,9 +634,7 @@ func createPath_deepWay_layer_by_layer_alt_2(beginId: int = 0):
 				deepestId = currId
 			continue
 		
-		neighborsToExplo.shuffle()
-		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		cubeGraph.setDepth(newId, depth + 1)
@@ -699,9 +698,7 @@ func createPath_deepWay_layer_by_layer_alt_3(beginId: int = 0):
 				lastDeepestId = deepestId
 			continue
 		
-		neighborsToExplo.shuffle()
-		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -784,9 +781,7 @@ func createPath_deepWay_layer_by_layer_alt_4(beginId: int = 0):
 				lastDeepestId = deepestId
 			continue
 		
-		neighborsToExplo.shuffle()
-		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -806,7 +801,7 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 	var lastDeepestId = deepestId
 	var secondLayerTransitionId = []
 	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
-	var currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+	var currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 	
 	for i in range(maxAdditionalConnections):
 		secondLayerTransitionId.append(-1)
@@ -869,12 +864,10 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
 				lastDeepestId = deepestId
 				# set random nbr of connection for the next transition layer
-				currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+				currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 			continue
 		
-		neighborsToExplo.shuffle()
-		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
@@ -895,7 +888,7 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 	var lastDeepestId = deepestId
 	var secondLayerTransitionId = []
 	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
-	var currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+	var currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 	
 	for i in range(maxAdditionalConnections):
 		secondLayerTransitionId.append(-1)
@@ -930,8 +923,7 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 				currMaxDepth = depth
 				deepestId = currId
 			
-			stack.shuffle()
-			currId = stack.pop_back()
+			currId = stack.pop_at(rng.randi() % stack.size())
 			#cubeGraph.setVisited(currId)
 			
 			# when all nodes are allready visited (stack empty) and we are 
@@ -961,13 +953,11 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 					lastSecondId[i] = cubeGraph.getUpNeighbors(secondLayerTransitionId[i])
 				lastDeepestId = deepestId
 				# set random nbr of connection for the next transition layer
-				currentAdditionalConnection = randi_range(0, maxAdditionalConnections)
+				currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 				#print(currentAdditionalConnection, " ", lastDeepestId, " ", lastSecondId)
 			continue
 		
-		neighborsToExplo.shuffle()
-		
-		var newId = neighborsToExplo.pop_front()
+		var newId = neighborsToExplo.pop_at(rng.randi() % neighborsToExplo.size())
 		cubeGraph.connectNeighbors(currId, newId)
 		cubeGraph.setVisited(newId)
 		currId = newId
