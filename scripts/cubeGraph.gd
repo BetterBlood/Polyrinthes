@@ -4,9 +4,7 @@ class_name CubeGraph
 var neighbors = []
 var neighborsConnected = []
 var colorsIds = []
-var depths = []
-var lastVisited = 0
-var deepest = 0
+var lastVisited = 0 # deprecated
 var visited:Array[bool] = []
 var processing:Array[bool] = []
 static var colorId = 0
@@ -17,12 +15,21 @@ var nbrNeighbors: int
 var wallValue: int
 var outsideWallValue: int
 
-func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6, byDepthColor: bool = true):
+var tags = [] # tab of tab of tag
+var current_tag = [] # tab of tag (current state if needed)
+var default_tag_value = []
+
+func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, 
+			nbrN: int = 6, byDepthColor: bool = true, def_tag_value:Array = [-1]):
 	size = mazeSize
 	nbrNeighbors = nbrN
 	wallValue = wallV
 	outsideWallValue = outWallV
 	colorByDepth = byDepthColor
+	
+	current_tag.append(0)
+	
+	var special_tags_error = false
 	
 	for i in range(getNbrRoom()):
 		# TODO see if Array.resise() or something like this is usable here
@@ -31,9 +38,23 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, nbrN: int = 6
 		neighbors.append([])
 		neighborsConnected.append([])
 		colorsIds.append(-1)
-		depths.append(-1)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
+		
+		tags.append([])
+		
+		if len(def_tag_value) == 0 || def_tag_value[0] != -1:
+			default_tag_value = [-1]
+			special_tags_error = true
+		else:
+			default_tag_value = def_tag_value.duplicate()
+		
+		for j in range(len(default_tag_value)):
+			tags[j].append(default_tag_value[j])
+	
+	if special_tags_error:
+		push_error("Special tags initialisation failed -> skiped !
+					default_tag_value should begin with '-1' for depth")
 	
 	constructNeig()
 	replaceValueForOutsideWalls(neighborsConnected)
@@ -285,18 +306,31 @@ func getColor(id: int):
 func getDepth(id :int):
 	if not isInRange(id):
 		return -1
-	return depths[id]
+	return tags[0][id]
+
+func get_deepest() -> int:
+	return current_tag[0]
+
+func get_tag(room_id: int, tag_id: int) -> int:
+	if not isInRange(room_id) || not tag_id < len(tags):
+		return -1
+	return tags[tag_id][room_id]
+
+func get_current_tag(tag_id: int) -> int:
+	if not tag_id < len(tags):
+		return -1
+	return current_tag[tag_id]
 
 func setDepth(id: int, depth: int):
 	if isInRange(id):
-		depths[id] = depth 
-		if deepest < depth :
-			deepest = depth
-			lastVisited = deepest
+		tags[0][id] = depth 
+		if current_tag[0] < depth :
+			current_tag[0] = depth
+			lastVisited = id
 			#print("lastVisited:", lastVisited)
 
 func setColorFromDepth():
-	colorsIds = depths.duplicate()
+	colorsIds = tags[0].duplicate()
 
 func isInRange(id: int):
 	return id < getNbrRoom() && id >= 0
@@ -307,6 +341,7 @@ func isVisited(id: int):
 func setVisited(id: int, value: bool = true):
 	if not isInRange(id): return
 	visited[id] = value
+	lastVisited = id
 
 func isProcessing(id: int):
 	return not isInRange(id) || processing[id]
@@ -326,21 +361,21 @@ func getUpNeighbors(id: int):
 
 func reset_Depth_Color_Visited():
 	lastVisited = 0
-	deepest = 0
+	current_tag[0] = 0
 	colorId = 0
-	depths.clear()
+	tags[0].clear()
 	colorsIds.clear()
 	visited.clear()
 	for i in range(getNbrRoom()):
-		depths.append(-1)
+		tags[0].append(-1)
 		colorsIds.append(-1)
 		visited.append(false)
 
 func resetDepth():
-	deepest = 0
-	depths.clear()
+	current_tag[0] = 0
+	tags[0].clear()
 	for i in range(getNbrRoom()):
-		depths.append(-1)
+		tags[0].append(-1)
 
 func resetColor():
 	colorId = 0
@@ -454,10 +489,10 @@ func clean():
 	colorsIds.clear()
 	colorId = 0
 	lastVisited = 0
-	deepest = 0
+	current_tag[0] = 0
 	visited.clear()
 	processing.clear()
-	depths.clear()
+	tags.clear()
 	
 	for i in self.get_children():
 		self.remove_child(i)

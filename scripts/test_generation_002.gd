@@ -86,7 +86,9 @@ var thread: Thread
 signal end_generate()
 
 var rng = RandomNumberGenerator.new()
-
+var seed:String
+var seed_hashed:int
+var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
@@ -126,8 +128,24 @@ func _ready(): # (backward, forward, left, right, down, up)
 func _process(_delta):
 	pass
 
-func generate(sizeP:int):
-	rng.seed = hash("TEST")
+func generate_seeds(chars:String = characters, length:int = 10) -> void :
+	seed = ""
+	var chars_len = len(chars)
+	for i in range(length):
+		seed += chars[randi()% chars_len]
+	
+	seed_hashed = hash(seed)
+	print(seed, ": ", seed_hashed)
+
+func generate(sizeP:int, new_seed:String = ""):
+	
+	if len(new_seed) == 0:
+		generate_seeds()
+	else:
+		seed = new_seed
+		seed_hashed = hash(seed)
+	
+	rng.seed = seed_hashed
 	
 	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
@@ -140,14 +158,14 @@ func generate(sizeP:int):
 	var time_start = Time.get_ticks_msec()
 	#createPath_deepWay(beginId)
 	#createPath_deepWay_alt_1(beginId)
-	createPath_deepWay_alt_2(beginId)
+	#createPath_deepWay_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer(beginId)
 	#createPath_deepWay_layer_by_layer_alt_1(beginId)
 	#createPath_deepWay_layer_by_layer_alt_2(beginId)
 	#createPath_deepWay_layer_by_layer_alt_3(beginId)
 	#createPath_deepWay_layer_by_layer_alt_4(beginId)
 	#createPath_deepWay_layer_by_layer_alt_5(beginId)
-	#createPath_deepWay_layer_by_layer_alt_6(beginId)
+	createPath_deepWay_layer_by_layer_alt_6(beginId)
 	
 	var time_end = Time.get_ticks_msec()
 	print("createPath in " + str((time_end - time_start)/1000) + "s " + \
@@ -159,7 +177,7 @@ func generate(sizeP:int):
 	print("deepensPath in " + str((time_end - time_start)/1000) + "s " + \
 		str((time_end - time_start)%1000) + "ms.")
 		
-	var depthReached = cubeGraph.deepest
+	var depthReached = cubeGraph.get_deepest()
 	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
 	
 	if colorBasedOnDepth:
@@ -385,7 +403,7 @@ func exampleDebugforsize3():
 		deepensPath_wideWay(18)
 		cubeGraph.setColorFromDepth()
 		
-		var depthReached = cubeGraph.deepest
+		var depthReached = cubeGraph.get_deepest()
 		
 		for i in range(cubeGraph.getNbrRoom()):
 			var cube = CubeCustom.new(
@@ -996,7 +1014,7 @@ func deepensPath_wideWay(beginId: int = 0):
 func instantiatePyramidConnection(mazeUsed: Dictionary):
 	if !newConnectionDebug:
 		return
-	var depthReached = cubeGraph.deepest 
+	var depthReached = cubeGraph.get_deepest()
 	for id in mazeUsed:
 		for i in cubeGraph.getNextNeighbors(id):
 			# print(id, " ", i, " ", (mazeUsed[i].getCenter() - mazeUsed[id].getCenter()).normalized())
@@ -1050,7 +1068,7 @@ func instantiate_corridor(center_pos: Vector3, rot: Vector3):
 func instantiatePyramidConnection_allNeighbors(mazeUsed: Dictionary):
 	if !newConnectionDebug:
 		return
-	var depthReached = cubeGraph.deepest 
+	var depthReached = cubeGraph.get_deepest()
 	for id in mazeUsed:
 		for i in cubeGraph.getNeighbors(id):
 			if i > -1 && cubeGraph.isFollowing(id, i):
