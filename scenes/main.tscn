@@ -1,0 +1,72 @@
+[gd_scene load_steps=10 format=3 uid="uid://dd1d3b6floyek"]
+
+[ext_resource type="PackedScene" uid="uid://doed2qxcxjosw" path="res://scenes/test_generation_002.tscn" id="1_4tfd7"]
+[ext_resource type="Material" uid="uid://bigktdomoryie" path="res://materials/debug.tres" id="2_fkan0"]
+[ext_resource type="PackedScene" uid="uid://b0wgyq3xq5jsp" path="res://scenes/UI/menu.tscn" id="3_7r5ek"]
+[ext_resource type="PackedScene" uid="uid://cfkgshoc48ins" path="res://scenes/player.tscn" id="4_f5gas"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_1ox41"]
+material = ExtResource("2_fkan0")
+
+[sub_resource type="BoxMesh" id="BoxMesh_fvufc"]
+material = ExtResource("2_fkan0")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_fa68x"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_txng7"]
+sky_material = SubResource("ProceduralSkyMaterial_fa68x")
+
+[sub_resource type="Environment" id="Environment_32mym"]
+background_mode = 2
+sky = SubResource("Sky_txng7")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Main" type="Node3D"]
+
+[node name="test_genration_002" parent="." node_paths=PackedStringArray("coord_first", "coord_right", "coord_up") instance=ExtResource("1_4tfd7")]
+algo = 9
+coord_first = NodePath("../First")
+coord_right = NodePath("../Right")
+coord_up = NodePath("../Up")
+
+[node name="First" type="Marker3D" parent="."]
+
+[node name="Right" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+
+[node name="Up" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="Other" type="Node" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Other"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 0)
+mesh = SubResource("BoxMesh_1ox41")
+skeleton = NodePath("../../Up")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="Other"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0, 5)
+mesh = SubResource("BoxMesh_fvufc")
+skeleton = NodePath("../../Up")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="Other"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0)
+mesh = SubResource("BoxMesh_fvufc")
+skeleton = NodePath("../../Up")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Other"]
+environment = SubResource("Environment_32mym")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="Other"]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Player" parent="Other" instance=ExtResource("4_f5gas")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
+
+[node name="Menu" parent="Other" instance=ExtResource("3_7r5ek")]
+
+[connection signal="generation" from="Other/Menu" to="test_genration_002" method="_on_menu_generation"]

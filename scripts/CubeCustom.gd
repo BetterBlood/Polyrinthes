@@ -2,13 +2,18 @@ extends Node
 
 class_name CubeCustom
 
-const connection = preload("res://scenes/connection.tscn")
-const wall = preload("res://scenes/wall.tscn")
+const connection = preload("res://scenes/connection.tscn") # depreciated
+const wall = preload("res://scenes/wall.tscn") # depreciated
+
+const wall_white = preload("res://scenes/wall_white.tscn")
+var wall_material: StandardMaterial3D
+
 const sphere = preload("res://scenes/sphere.tscn")
 const distFromCenter: float = 5.2 
 const rotationAngle: float = PI/2
 const wallValue: int = -1
 const outSideWallValue: int = -2
+var scale: float
 
 var _debug: bool
 var _showWall: bool
@@ -20,11 +25,17 @@ const _pyramid: bool = false
 var _center: Vector3 = Vector3()
 
 func _init(center_pos: Vector3, arr: Array[int], depth: float, deepest: float,
-			debug: bool = false, showWall: bool = true, triColor: bool = true):
+			debug: bool = false, showWall: bool = true, triColor: bool = true,
+			new_wall_material: StandardMaterial3D = null, new_scale: float = 1.0):
 	_center = center_pos
 	_debug = debug
 	_showWall = showWall
 	_triColor = triColor
+	
+	if new_wall_material != null:
+		wall_material = new_wall_material
+	scale = new_scale
+	
 	#call_deferred("instantiate_cube", center_pos, arr, depth, deepest)
 	instantiate_cube(center_pos, arr, depth, deepest)
 	if _debug:
@@ -68,7 +79,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	# (backward, forward, left, right, down, up)
 	if (arr[0] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(0,0,distFromCenter), Vector3(-2*rotationAngle,0,0))
+			instatiate_wall_free(center_pos, Vector3(0,0,distFromCenter*scale), Vector3(-2*rotationAngle,0,0))
 	elif _debug && arr[0] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-2*rotationAngle,0,0), color)
@@ -76,7 +87,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,-2*rotationAngle,0), color)
 	if (arr[1] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(0,0,-distFromCenter), Vector3(0,0,0))
+			instatiate_wall_free(center_pos, Vector3(0,0,-distFromCenter*scale), Vector3(0,0,0))
 	elif _debug && arr[1] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,0,0), color)
@@ -85,7 +96,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	
 	if (arr[2] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(-distFromCenter,0,0), Vector3(0,rotationAngle,0))
+			instatiate_wall_free(center_pos, Vector3(-distFromCenter*scale,0,0), Vector3(0,rotationAngle,0))
 	elif _debug && arr[2] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,rotationAngle,0), color)
@@ -93,7 +104,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,rotationAngle,0), color)
 	if (arr[3] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(distFromCenter,0,0), Vector3(0,-rotationAngle,0))
+			instatiate_wall_free(center_pos, Vector3(distFromCenter*scale,0,0), Vector3(0,-rotationAngle,0))
 	elif _debug && arr[3] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(0,-rotationAngle,0),color)
@@ -102,7 +113,7 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 	
 	if (arr[4] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(0,-distFromCenter,0), Vector3(rotationAngle,0,0))
+			instatiate_wall_free(center_pos, Vector3(0,-distFromCenter*scale,0), Vector3(rotationAngle,0,0))
 	elif _debug && arr[4] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(-rotationAngle,0,0), color)
@@ -110,14 +121,14 @@ func instantiate_cube(center_pos: Vector3, arr: Array[int], depth: float, size: 
 			instantiate_pyramid(center_pos, Vector3(0,0,-rotationAngle), color) # (._. )
 	if (arr[5] == wallValue):
 		if _showWall:
-			instantiate_wall(center_pos, Vector3(0,distFromCenter,0), Vector3(-rotationAngle,0,0))
+			instatiate_wall_free(center_pos, Vector3(0,distFromCenter*scale,0), Vector3(-rotationAngle,0,0))
 	elif _debug && arr[5] != outSideWallValue:
 		if _connection:
 			instantiate_connection(center_pos, Vector3(rotationAngle,0,0), color)
 		elif _pyramid:
 			instantiate_pyramid(center_pos, Vector3(0,0,rotationAngle), color) # (._o )
 
-func instantiate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
+func instantiate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3): # depreciated
 	var wallTmp = wall.instantiate()
 	
 	wallTmp.set_position(center_pos + pos)
@@ -125,6 +136,20 @@ func instantiate_wall(center_pos: Vector3, pos: Vector3, rot: Vector3):
 	
 	#call_deferred("add_child", wallTmp)
 	add_child(wallTmp)
+
+
+func instatiate_wall_free(center_pos: Vector3, pos: Vector3, rot: Vector3) -> void:
+	var wallTmp = wall_white.instantiate()
+	
+	wallTmp.set_position(center_pos + pos)
+	wallTmp.set_rotation(rot)
+	wallTmp.scale = Vector3(scale, scale, scale)
+	
+	var mesh = wallTmp.get_children()[0] as MeshInstance3D;
+	mesh.material_override = wall_material
+	
+	add_child(wallTmp)
+
 
 func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	var connectionTmp = connection.instantiate()
@@ -137,7 +162,7 @@ func instantiate_connection(center_pos: Vector3, rot: Vector3, color: Vector3):
 	add_child(connectionTmp)
 
 func instantiate_pyramid(center_pos: Vector3, rot: Vector3, color: Vector3):
-	var distance: float = distFromCenter
+	var distance: float = distFromCenter*scale
 	var base_distFromCenter: int = 1
 	var vertices = PackedVector3Array()
 	# 4 faces :

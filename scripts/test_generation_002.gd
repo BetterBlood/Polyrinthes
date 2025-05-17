@@ -3,6 +3,14 @@ const CubeCustom := preload("res://scripts/CubeCustom.gd")
 const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
 const wall = preload("res://scenes/wall.tscn") # DEBUG
+
+@export var wall_mat:StandardMaterial3D #= preload("res://materials/wallMaterial.tres")
+@export var algo:= GENERATION_ALGORITHME.DFS_3D_ALT_2
+
+@export var coord_first: Marker3D
+@export var coord_right: Marker3D
+@export var coord_up: Marker3D
+
 const corridor = preload("res://scenes/Test/corridor.tscn") # TEST & DEBUG
 const sphere = preload("res://scenes/sphere.tscn") # DEBUG
 var cubeGraph: CubeGraph
@@ -18,6 +26,7 @@ var size = 3 # default size
 # 21 : spacing to add gap between cube rooms
 var gapBetweenRooms_multiplier = 1 # 1 for no gap, other value for DEBUG
 var corridor_length = 15.6
+@export var room_scale:float = 1.0
 
 # SETUP for 3x3 debug static with corridors and all walls
 #var debug_static_3x3 = true
@@ -56,22 +65,22 @@ var corridor_length = 15.6
 #var triColor:bool = true
 
 # SETUP debug without corridors, without walls
-var debug_static_3x3 = false
-var corridor_used: bool = false
-var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-var debug: bool = true
-var newConnectionDebug: bool = true
-var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
-var triColor:bool = true
-
-# SETUP normal mode
 #var debug_static_3x3 = false
 #var corridor_used: bool = false
-#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = false
+#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = true
 #var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
 #var triColor:bool = true
+
+# SETUP normal mode
+var debug_static_3x3 = false
+var corridor_used: bool = false
+var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+var debug: bool = false
+var newConnectionDebug: bool = true
+var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+var triColor:bool = true
 
 
 var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
@@ -86,9 +95,22 @@ var thread: Thread
 signal end_generate()
 
 var rng = RandomNumberGenerator.new()
-var seed:String
+var seed_human:String
 var seed_hashed:int
 var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+enum GENERATION_ALGORITHME { 
+	DFS_3D, 
+	DFS_3D_ALT_1, 
+	DFS_3D_ALT_2, 
+	DFS_LBL, 
+	DFS_LBL_ALT_1, 
+	DFS_LBL_ALT_2, 
+	DFS_LBL_ALT_3, 
+	DFS_LBL_ALT_4, 
+	DFS_LBL_ALT_5, 
+	DFS_LBL_ALT_6 
+}
 
 # Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
@@ -129,21 +151,21 @@ func _process(_delta):
 	pass
 
 func generate_seeds(chars:String = characters, length:int = 10) -> void :
-	seed = ""
+	seed_human = ""
 	var chars_len = len(chars)
 	for i in range(length):
-		seed += chars[randi()% chars_len]
+		seed_human += chars[randi()% chars_len]
 	
-	seed_hashed = hash(seed)
-	print(seed, ": ", seed_hashed)
+	seed_hashed = hash(seed_human)
+	print(seed_human, ": ", seed_hashed)
 
 func generate(sizeP:int, new_seed:String = ""):
 	
 	if len(new_seed) == 0:
 		generate_seeds()
 	else:
-		seed = new_seed
-		seed_hashed = hash(seed)
+		seed_human = new_seed
+		seed_hashed = hash(seed_human)
 	
 	rng.seed = seed_hashed
 	
@@ -156,16 +178,41 @@ func generate(sizeP:int, new_seed:String = ""):
 	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
 	var time_start = Time.get_ticks_msec()
-	#createPath_deepWay(beginId)
-	#createPath_deepWay_alt_1(beginId)
-	#createPath_deepWay_alt_2(beginId)
-	#createPath_deepWay_layer_by_layer(beginId)
-	#createPath_deepWay_layer_by_layer_alt_1(beginId)
-	#createPath_deepWay_layer_by_layer_alt_2(beginId)
-	#createPath_deepWay_layer_by_layer_alt_3(beginId)
-	#createPath_deepWay_layer_by_layer_alt_4(beginId)
-	#createPath_deepWay_layer_by_layer_alt_5(beginId)
-	createPath_deepWay_layer_by_layer_alt_6(beginId)
+	
+	match algo:
+		GENERATION_ALGORITHME.DFS_3D:
+			createPath_deepWay(beginId)
+			
+		GENERATION_ALGORITHME.DFS_3D_ALT_1:
+			createPath_deepWay_alt_1(beginId)
+			
+		GENERATION_ALGORITHME.DFS_3D_ALT_2:
+			createPath_deepWay_alt_2(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL:
+			createPath_deepWay_layer_by_layer(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_1:
+			createPath_deepWay_layer_by_layer_alt_1(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_2:
+			createPath_deepWay_layer_by_layer_alt_2(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_3:
+			createPath_deepWay_layer_by_layer_alt_3(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_4:
+			createPath_deepWay_layer_by_layer_alt_4(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_5:
+			createPath_deepWay_layer_by_layer_alt_5(beginId)
+			
+		GENERATION_ALGORITHME.DFS_LBL_ALT_6:
+			createPath_deepWay_layer_by_layer_alt_6(beginId)
+			
+		_:
+			push_warning("gen_algo provided not matched: please have a look at GENERATION_ALGORITHME enum")
+			createPath_deepWay_layer_by_layer_alt_6(beginId)
 	
 	var time_end = Time.get_ticks_msec()
 	print("createPath in " + str((time_end - time_start)/1000) + "s " + \
@@ -183,59 +230,69 @@ func generate(sizeP:int, new_seed:String = ""):
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
 	
-	# TODO : set this spawn point parametric
-	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
-	var yCoordBase = 0
-	var zCoordBase = -50
+#	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
+#	var yCoordBase = 0
+#	var zCoordBase = -50
+#	var xCoord = xCoordBase
+#	var yCoord = yCoordBase
+#	var zCoord = zCoordBase
 	
-	var xCoord = xCoordBase
-	var yCoord = yCoordBase
-	var zCoord = zCoordBase
-	
-	time_start = Time.get_ticks_msec()
-	for i in range(sizeTotal):
-		#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
-		#print(xCoord, " ", yCoord, " ", zCoord)
-		#print(cubeGraph.getNeighbors(i))
-		var cube = CubeCustom.new(
-			Vector3(xCoord,yCoord,zCoord), 
-			cubeGraph.getNeighbors(i),
-			cubeGraph.getColor(i), 
-			depthReached,
-			debug,
-			showWall,
-			triColor
-		)
-		
-		add_child(cube)
-		mazeAll[i] = cube
-		
-		xCoord += gapBetweenCubeCenter
-		
-		if i%(sizeBase) == sizeBase - 1:
-			xCoord = xCoordBase
-			yCoord += gapBetweenCubeCenter
-		
-		if i%(sizeFace) == (sizeFace) - 1:
-			yCoord = yCoordBase
-			zCoord -= gapBetweenCubeCenter
-	
-	time_end = Time.get_ticks_msec()
-	print("Display with all neighbors: 100% in " + str((time_end - time_start)/1000) + "s " + \
-		str((time_end - time_start)%1000) + "ms.")
+	var defaul_start_pos:Vector3 = coord_first.position
+	var curr_pos:Vector3 = defaul_start_pos
+	var right_gap:Vector3 = (coord_right.position - coord_first.position).normalized() * gapBetweenCubeCenter * room_scale
+	var up_gap:Vector3 = (coord_up.position - coord_first.position).normalized() * gapBetweenCubeCenter * room_scale
+	var up_nbr = 0
+	var depth_gap = up_gap.cross(right_gap).normalized() * gapBetweenCubeCenter * room_scale
+	var depth_nbr = 0
 	
 	if debug:
+		time_start = Time.get_ticks_msec()
+		for i in range(sizeTotal):
+			#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
+			#print(xCoord, " ", yCoord, " ", zCoord)
+			#print(cubeGraph.getNeighbors(i))
+			var cube = CubeCustom.new(
+				curr_pos, 
+				cubeGraph.getNeighbors(i),
+				cubeGraph.getColor(i), 
+				depthReached,
+				debug,
+				showWall,
+				triColor,
+				wall_mat,
+				room_scale
+			)
+			
+			add_child(cube)
+			mazeAll[i] = cube
+			
+			#xCoord += gapBetweenCubeCenter
+			curr_pos += right_gap
+			
+			if i%(sizeBase) == sizeBase - 1:
+				up_nbr += 1
+				curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
+			
+			if i%(sizeFace) == (sizeFace) - 1:
+				up_nbr = 0
+				depth_nbr += 1
+				curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
+		
+		time_end = Time.get_ticks_msec()
+		print("Display with all neighbors: 100% in " + str((time_end - time_start)/1000) + "s " + \
+			str((time_end - time_start)%1000) + "ms.")
+		
 		time_start = Time.get_ticks_msec()
 		instantiatePyramidConnection_allNeighbors(mazeAll)
 		time_end = Time.get_ticks_msec()
 		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s " + \
 			str((time_end - time_start)%1000) + "ms.")
-	
-	# reset to new location :
-	xCoordBase = xCoordBase + gapBetweenCubeCenter * (sizeBase + 1)
-	xCoord = xCoordBase
-	yCoord = yCoordBase
-	zCoord = zCoordBase
+			
+		# reset to new location :
+		defaul_start_pos = coord_first.position + right_gap * (sizeBase + 1)
+		curr_pos = defaul_start_pos
+		up_nbr = 0
+		depth_nbr = 0
 	
 	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal):
@@ -245,27 +302,30 @@ func generate(sizeP:int, new_seed:String = ""):
 		
 		var cube = CubeCustom.new(
 		#var cube = TruncatedOctahedronCustom.new(
-			Vector3(xCoord,yCoord,zCoord), 
+			curr_pos, 
 			cubeGraph.getNeighborsConnection(i), 
 			cubeGraph.getColor(i), 
 			depthReached,
 			debug,
 			showWall,
-			triColor
+			triColor,
+			wall_mat,
+			room_scale
 		)
 		
 		add_child(cube)
 		maze[i] = cube
 		
-		xCoord += gapBetweenCubeCenter
+		curr_pos += right_gap
 		
 		if i%(sizeBase) == sizeBase - 1:
-			xCoord = xCoordBase
-			yCoord += gapBetweenCubeCenter
+			up_nbr += 1
+			curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
 		
 		if i%(sizeFace) == (sizeFace) - 1:
-			yCoord = yCoordBase
-			zCoord -= gapBetweenCubeCenter
+			up_nbr = 0
+			depth_nbr += 1
+			curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
 		
 		# TODO : WIP, find a way to continue moving while rendering graph
 		# this following line slow down the render but regenerate (while generating)
@@ -286,46 +346,46 @@ func generate(sizeP:int, new_seed:String = ""):
 			str((time_end - time_start)%1000) + "ms.")
 	
 	# reset to new location (for truncated octahedron):
-	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
-	xCoord = xCoordBase
-	yCoord = yCoordBase
-	zCoord = zCoordBase
-	
-	time_start = Time.get_ticks_msec()
-	for i in range(sizeTotal): # TODO : truncatedOctahedronGraph (to file empty spaces with usable rooms)
-		var truncatedOctahedron = TruncatedOctahedronCustom.new(
-			Vector3(xCoord,yCoord,zCoord), 
-			cubeGraph.getNeighborsConnection(i), 
-			cubeGraph.getColor(i), 
-			depthReached,
-			debug,
-			showWall,
-			triColor
-		)
-		
-		add_child(truncatedOctahedron)
-		mazeTruncOcta[i] = truncatedOctahedron
-		
-		xCoord += gapBetweenTruncatedOctahedronCenter
-		
-		if i%(sizeBase) == sizeBase - 1:
-			xCoord = xCoordBase
-			yCoord += gapBetweenTruncatedOctahedronCenter
-		
-		if i%(sizeFace) == (sizeFace) - 1:
-			yCoord = yCoordBase
-			zCoord -= gapBetweenTruncatedOctahedronCenter
-		
-	time_end = Time.get_ticks_msec()
-	print("100% truncated octahedron in " + \
-		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
-	
-	if debug:
-		time_start = Time.get_ticks_msec()
-		instantiatePyramidConnection(mazeTruncOcta)
-		time_end = Time.get_ticks_msec()
-		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
-			str((time_end - time_start)%1000) + "ms.\n\n")
+#	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
+#	xCoord = xCoordBase
+#	yCoord = yCoordBase
+#	zCoord = zCoordBase
+#
+#	time_start = Time.get_ticks_msec()
+#	for i in range(sizeTotal): # TODO : truncatedOctahedronGraph (to file empty spaces with usable rooms)
+#		var truncatedOctahedron = TruncatedOctahedronCustom.new(
+#			Vector3(xCoord,yCoord,zCoord), 
+#			cubeGraph.getNeighborsConnection(i), 
+#			cubeGraph.getColor(i), 
+#			depthReached,
+#			debug,
+#			showWall,
+#			triColor
+#		)
+#
+#		add_child(truncatedOctahedron)
+#		mazeTruncOcta[i] = truncatedOctahedron
+#
+#		xCoord += gapBetweenTruncatedOctahedronCenter
+#
+#		if i%(sizeBase) == sizeBase - 1:
+#			xCoord = xCoordBase
+#			yCoord += gapBetweenTruncatedOctahedronCenter
+#
+#		if i%(sizeFace) == (sizeFace) - 1:
+#			yCoord = yCoordBase
+#			zCoord -= gapBetweenTruncatedOctahedronCenter
+#
+#	time_end = Time.get_ticks_msec()
+#	print("100% truncated octahedron in " + \
+#		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
+#
+#	if debug:
+#		time_start = Time.get_ticks_msec()
+#		instantiatePyramidConnection(mazeTruncOcta)
+#		time_end = Time.get_ticks_msec()
+#		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
+#			str((time_end - time_start)%1000) + "ms.\n\n")
 
 func _on_menu_generation(edgeSize) -> void:
 	clean()

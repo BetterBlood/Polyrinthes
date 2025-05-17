@@ -1,33 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://doed2qxcxjosw"]
+[gd_scene load_steps=2 format=3 uid="uid://doed2qxcxjosw"]
 
 [ext_resource type="Script" path="res://scripts/test_generation_002.gd" id="1_c56x3"]
-[ext_resource type="PackedScene" uid="uid://cfkgshoc48ins" path="res://scenes/player.tscn" id="2_b2eq3"]
-[ext_resource type="PackedScene" uid="uid://b0wgyq3xq5jsp" path="res://scenes/UI/menu.tscn" id="3_rp0dr"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yke84"]
-
-[sub_resource type="Sky" id="Sky_ar7i0"]
-sky_material = SubResource("ProceduralSkyMaterial_yke84")
-
-[sub_resource type="Environment" id="Environment_h3uml"]
-background_mode = 2
-sky = SubResource("Sky_ar7i0")
-tonemap_mode = 2
-glow_enabled = true
-
-[node name="test_genration_002" type="Node3D"]
+[node name="test_genration_002" type="Node3D" node_paths=PackedStringArray("coord_first", "coord_right", "coord_up")]
 script = ExtResource("1_c56x3")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_h3uml")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, -0.75, 0.433013, 0, 732.583, 0)
-shadow_enabled = true
-
-[node name="Player" parent="." instance=ExtResource("2_b2eq3")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 15, 0)
-
-[node name="Menu" parent="." instance=ExtResource("3_rp0dr")]
-
-[connection signal="generation" from="Menu" to="." method="_on_menu_generation"]
+coord_first = NodePath("")
+coord_right = NodePath("")
+coord_up = NodePath("")
