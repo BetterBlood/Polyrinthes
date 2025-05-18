@@ -17,9 +17,9 @@ var cubeGraph: CubeGraph
 
 const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn") # DEBUG
 
-var mazeAll:Dictionary= {}
+var mazeAll:Dictionary= {} # DEBUG
 var maze:Dictionary= {}
-var mazeTruncOcta:Dictionary= {}
+var mazeTruncOcta:Dictionary= {} # DEBUG
 
 var size = 3 # default size
 # 10.5 : normal spacing for cube rooms
@@ -160,7 +160,6 @@ func generate_seeds(chars:String = characters, length:int = 10) -> void :
 	print(seed_human, ": ", seed_hashed)
 
 func generate(sizeP:int, new_seed:String = ""):
-	
 	if len(new_seed) == 0:
 		generate_seeds()
 	else:
@@ -171,14 +170,11 @@ func generate(sizeP:int, new_seed:String = ""):
 	
 	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1, -1])
-	var sizeBase = cubeGraph.size
-	var sizeFace = cubeGraph.getNbrRoomOnASide()
-	var sizeTotal = cubeGraph.getNbrRoom()
 	
-	var beginId = 0
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
-	var time_start = Time.get_ticks_msec()
+	var beginId = 0
 	
+	var time_start = Time.get_ticks_msec()
 	match algo:
 		GENERATION_ALGORITHME.DFS_3D:
 			createPath_deepWay(beginId)
@@ -213,30 +209,26 @@ func generate(sizeP:int, new_seed:String = ""):
 		_:
 			push_warning("gen_algo provided not matched: please have a look at GENERATION_ALGORITHME enum")
 			createPath_deepWay_layer_by_layer_alt_6(beginId)
-	
 	var time_end = Time.get_ticks_msec()
+	
 	print("createPath in " + str((time_end - time_start)/1000) + "s " + \
 		str((time_end - time_start)%1000) + "ms.")
 	
 	time_start = Time.get_ticks_msec()
-	deepensPath_wideWay(beginId) # recompute connections from given id
+	deepensPath_wideWay(beginId) # recompute connections from given id, by depth
 	time_end = Time.get_ticks_msec()
+	
 	print("deepensPath in " + str((time_end - time_start)/1000) + "s " + \
 		str((time_end - time_start)%1000) + "ms.")
-		
-	var depthReached = cubeGraph.get_deepest()
-	print("cubeGraph.getNbrRoom(): ", sizeTotal, ", depth: ", depthReached)
+	
+	print("cubeGraph.getNbrRoom(): ", cubeGraph.getNbrRoom(), ", depth: ", cubeGraph.get_deepest())
 	
 	if colorBasedOnDepth:
 		cubeGraph.setColorFromDepth()
 	
-#	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
-#	var yCoordBase = 0
-#	var zCoordBase = -50
-#	var xCoord = xCoordBase
-#	var yCoord = yCoordBase
-#	var zCoord = zCoordBase
-	
+	display()
+
+func display() -> void:
 	var defaul_start_pos:Vector3 = coord_first.position
 	var curr_pos:Vector3 = defaul_start_pos
 	var right_gap:Vector3 = (coord_right.position - coord_first.position).normalized() * gapBetweenCubeCenter * room_scale
@@ -244,6 +236,15 @@ func generate(sizeP:int, new_seed:String = ""):
 	var up_nbr = 0
 	var depth_gap = up_gap.cross(right_gap).normalized() * gapBetweenCubeCenter * room_scale
 	var depth_nbr = 0
+	
+	var time_start
+	var time_end
+	
+	var sizeBase = cubeGraph.size
+	var sizeFace = cubeGraph.getNbrRoomOnASide()
+	var sizeTotal = cubeGraph.getNbrRoom()
+	
+	var depthReached = cubeGraph.get_deepest()
 	
 	if debug:
 		time_start = Time.get_ticks_msec()
@@ -294,7 +295,7 @@ func generate(sizeP:int, new_seed:String = ""):
 		up_nbr = 0
 		depth_nbr = 0
 	
-	# DEBUG : for size > 2: update depth using tag_spread
+	# DEBUG: for size > 2: update depth using tag_spread from room 24
 	#tag_spreads_wide_way(24, 0, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
 	# update second tag:
 	#tag_spreads_wide_way(24, 1, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
@@ -306,7 +307,6 @@ func generate(sizeP:int, new_seed:String = ""):
 		#print(cubeGraph.getNeighbors(i))
 		
 		var cube = CubeCustom.new(
-		#var cube = TruncatedOctahedronCustom.new(
 			curr_pos, 
 			cubeGraph.getNeighborsConnection(i), 
 			cubeGraph.getColor(i), 
@@ -348,9 +348,16 @@ func generate(sizeP:int, new_seed:String = ""):
 		instantiatePyramidConnection(maze)
 		time_end = Time.get_ticks_msec()
 		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
-			str((time_end - time_start)%1000) + "ms.")
+			str((time_end - time_start)%1000) + "ms.\n")
 	
-	# reset to new location (for truncated octahedron):
+	# truncated octahedron: TODO: need to upgrade to vect instead of coords
+#	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
+#	var yCoordBase = 0
+#	var zCoordBase = -50
+#	var xCoord = xCoordBase
+#	var yCoord = yCoordBase
+#	var zCoord = zCoordBase
+#	# reset to new location (for truncated octahedron):
 #	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
 #	xCoord = xCoordBase
 #	yCoord = yCoordBase
@@ -1105,17 +1112,15 @@ func tag_spreads_wide_way(begin_id:int, tag_id:int, max_depth:int, values:Array)
 	if not cubeGraph.isInRange(begin_id):
 		push_error("begin_id out of range, aborted ! For current graph, should be lower than:", cubeGraph.getNbrRoom())
 		return
-	
 	if not cubeGraph.isTagInRange(tag_id):
 		push_error("tag_id not in tags, aborted ! For current graph, should be lower than:", cubeGraph.get_nbr_tag())
 		return
-	
 	if max_depth < 1:
 		push_error("max_depth cannot be less or equal to 0, aborted !")
 		return
 	
 	if len(values) - 1 < max_depth:
-		push_warning("Too fiew values, for max_depth: ", max_depth, ", len of values should be: ", 
+		push_warning("Too fiew values for max_depth: ", max_depth, ", len of values should be: ", 
 		max_depth + 1, ", actually is: ", len(values), "! Values sets to [0..", max_depth, "].")
 		values.clear()
 		values = range(max_depth + 1)

@@ -302,12 +302,10 @@ func getColor(id: int):
 	return -1
 
 func getDepth(id :int):
-	if not isInRange(id):
-		return -1
-	return tags[0][id]
+	return get_tag(id, 0)
 
 func get_deepest() -> int:
-	return current_tag[0]
+	return get_current_tag(0)
 
 func get_tag(room_id: int, tag_id: int) -> int:
 	if not isInRange(room_id) || not tag_id < len(tags):
@@ -320,12 +318,7 @@ func get_current_tag(tag_id: int) -> int:
 	return current_tag[tag_id]
 
 func setDepth(id: int, depth: int):
-	if isInRange(id):
-		tags[0][id] = depth 
-		if current_tag[0] < depth :
-			current_tag[0] = depth
-			lastVisited = id # TODO : should be better to remove this to avoid side effect
-			#print("lastVisited:", lastVisited)
+	set_tag(id, 0, depth)
 
 func set_tag(room_id:int, tag_id:int, value:int) -> bool:
 	if not isInRange(room_id) || not tag_id < len(tags):
