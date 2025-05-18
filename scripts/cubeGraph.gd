@@ -3,11 +3,9 @@ class_name CubeGraph
 
 var neighbors = []
 var neighborsConnected = []
-var colorsIds = []
 var lastVisited = 0 # deprecated
 var visited:Array[bool] = []
 var processing:Array[bool] = []
-static var colorId = 0
 var colorByDepth = true
 
 var size: int
@@ -20,23 +18,24 @@ var current_tag = [] # tab of tag (current state if needed)
 var default_tag_value = []
 
 func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, 
-			nbrN: int = 6, byDepthColor: bool = true, def_tag_value:Array = [-1]):
+		nbrN: int = 6, byDepthColor: bool = true, def_tag_value:Array = [-1, -1]):
 	size = mazeSize
 	nbrNeighbors = nbrN
 	wallValue = wallV
 	outsideWallValue = outWallV
 	colorByDepth = byDepthColor
 	
-	if len(def_tag_value) == 0 || def_tag_value[0] != -1:
-		default_tag_value = [-1]
-		push_error("Special tags initialisation failed -> skiped !
-					default_tag_value should begin with '-1' for depth")
+	if len(def_tag_value) < 2 || def_tag_value[0] != -1 || def_tag_value[1] != -1:
+		default_tag_value = [-1, -1]
+		push_error("Special tags initialisation failed -> default_tag_value set 
+				to his minimal form: [-1, -1] for [depth, debug_color]")
 	else:
 		default_tag_value = def_tag_value.duplicate()
 	
 	for i in range(len(default_tag_value)):
 		tags.append([])
 	current_tag = default_tag_value.duplicate()
+	current_tag[1] = 0 # color
 	
 	for i in range(getNbrRoom()):
 		# TODO see if Array.resise() or something like this is usable here
@@ -44,12 +43,13 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 		processing.append(false)
 		neighbors.append([])
 		neighborsConnected.append([])
-		colorsIds.append(-1)
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 		
 		for j in range(len(default_tag_value)):
 			tags[j].append(default_tag_value[j])
+	
+	current_tag[1] = 0
 	
 	constructNeig()
 	replaceValueForOutsideWalls(neighborsConnected)
@@ -202,19 +202,19 @@ func connectNeighbors(id1, id2):
 	
 	# first color instead of overwrite color and first approach to debug with colors
 	if not colorByDepth :
-		if colorsIds[id1] == -1 :
-			colorsIds[id1] = colorId
-		if colorsIds[id2] == -1 :
-			#colorId += 1
-			colorsIds[id2] = colorId + 1
-			lastVisited = colorId + 1
-		colorId += 1
+		if tags[1][id1] == -1 :
+			tags[1][id1] = current_tag[1]
+		if tags[1][id2] == -1 :
+			#current_tag[1] += 1
+			tags[1][id2] = current_tag[1] + 1
+			lastVisited = current_tag[1] + 1
+		current_tag[1] += 1
 #	else :
-#		if colorsIds[id1] == -1 :
-#			colorsIds[id1] = depths[id1]
-#		if colorsIds[id2] == -1 :
-#			colorId += 1
-#			colorsIds[id2] = depths[id2]
+#		if tags[1][id1] == -1 :
+#			tags[1][id1] = depths[id1]
+#		if tags[1][id2] == -1 :
+#			current_tag[1] += 1
+#			tags[1][id2] = depths[id2]
 	
 	# left, right
 	if id1 + 1 == id2:
@@ -297,9 +297,7 @@ func get_nbr_tag() -> int:
 	return len(default_tag_value)
 
 func getColor(id: int):
-	if isInRange(id):
-		return colorsIds[id]
-	return -1
+	return get_tag(id, 1)
 
 func getDepth(id :int):
 	return get_tag(id, 0)
@@ -331,7 +329,7 @@ func set_tag(room_id:int, tag_id:int, value:int) -> bool:
 	return true
 
 func setColorFromDepth():
-	colorsIds = tags[0].duplicate()
+	tags[1] = tags[0].duplicate()
 
 func isInRange(id: int):
 	return id < getNbrRoom() && id >= 0
@@ -366,13 +364,13 @@ func getUpNeighbors(id: int):
 func reset_Depth_Color_Visited():
 	lastVisited = 0
 	current_tag[0] = 0
-	colorId = 0
+	current_tag[1] = 0
 	tags[0].clear()
-	colorsIds.clear()
+	tags[1].clear()
 	visited.clear()
 	for i in range(getNbrRoom()):
 		tags[0].append(-1)
-		colorsIds.append(-1)
+		tags[1].append(-1)
 		visited.append(false)
 
 func resetDepth():
@@ -382,10 +380,10 @@ func resetDepth():
 		tags[0].append(-1)
 
 func resetColor():
-	colorId = 0
-	colorsIds.clear()
+	current_tag[1] = 0
+	tags[1].clear()
 	for i in range(getNbrRoom()):
-		colorsIds.append(-1)
+		tags[1].append(-1)
 
 func resetVisited():
 	lastVisited = 0
@@ -490,10 +488,8 @@ func instantiate_pyramid(center_pos: Vector3, distFromCenter: Vector3, color: Ve
 func clean():
 	neighbors.clear()
 	neighborsConnected.clear()
-	colorsIds.clear()
-	colorId = 0
+	current_tag.clear()
 	lastVisited = 0
-	current_tag[0] = 0
 	visited.clear()
 	processing.clear()
 	tags.clear()
