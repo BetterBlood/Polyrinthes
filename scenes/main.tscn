@@ -35,10 +35,10 @@ coord_up = NodePath("../Up")
 [node name="First" type="Marker3D" parent="."]
 
 [node name="Right" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.707107, 0.707107)
 
 [node name="Up" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0.707107, 0.707107)
 
 [node name="Other" type="Node" parent="."]
 
@@ -61,7 +61,7 @@ skeleton = NodePath("../../Up")
 environment = SubResource("Environment_32mym")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="Other"]
-transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, -149.575, 644.168, -232.724)
 shadow_enabled = true
 
 [node name="Player" parent="Other" instance=ExtResource("4_f5gas")]

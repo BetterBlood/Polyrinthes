@@ -228,14 +228,41 @@ func generate(sizeP:int, new_seed:String = ""):
 	
 	display()
 
+func get_rotation_from_basis(src_basis: Basis, dst_basis: Basis) -> Vector3:
+	src_basis.orthonormalized()
+	dst_basis.orthonormalized()
+	var rel = dst_basis * src_basis.transposed()
+	return rel.get_euler()
+
 func display() -> void:
+	# on the corner: right: (1, 0.707, 0.707), up: (-1, 0.707, 0.707)
 	var defaul_start_pos:Vector3 = coord_first.position
 	var curr_pos:Vector3 = defaul_start_pos
 	var right_gap:Vector3 = (coord_right.position - coord_first.position).normalized() * gapBetweenCubeCenter * room_scale
 	var up_gap:Vector3 = (coord_up.position - coord_first.position).normalized() * gapBetweenCubeCenter * room_scale
-	var up_nbr = 0
+	
 	var depth_gap = up_gap.cross(right_gap).normalized() * gapBetweenCubeCenter * room_scale
+	
+	if right_gap.dot(up_gap) > 0.001:
+		push_warning("Please be carefull, marker should be orthogonals, ", right_gap.dot(up_gap), " 
+			for this generation: they are replaced with (1,0,0) for right and (0,1,0) for up")
+		right_gap = Vector3(1,0,0) * gapBetweenCubeCenter * room_scale
+		up_gap = Vector3(0,1,0) * gapBetweenCubeCenter * room_scale
+	elif right_gap.dot(up_gap) != 0:
+		print("DEBUG: approximation, manually fixed ! ", right_gap.dot(up_gap), " is close to 0")
+		up_gap = right_gap.cross(depth_gap).normalized() * gapBetweenCubeCenter * room_scale
+	
+	var up_nbr = 0
 	var depth_nbr = 0
+	
+	var source = Basis(Vector3.RIGHT, Vector3.UP, Vector3.FORWARD)
+	var target = Basis(
+		right_gap.normalized(),
+		up_gap.normalized(),
+		depth_gap.normalized()
+	)
+	
+	var euler = get_rotation_from_basis(source, target)
 	
 	var time_start
 	var time_end
@@ -263,6 +290,8 @@ func display() -> void:
 				wall_mat,
 				room_scale
 			)
+			
+			cube.rotation = euler
 			
 			add_child(cube)
 			mazeAll[i] = cube
@@ -317,6 +346,8 @@ func display() -> void:
 			wall_mat,
 			room_scale
 		)
+		
+		cube.rotation = euler
 		
 		add_child(cube)
 		maze[i] = cube
