@@ -31,6 +31,16 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 	
 	var special_tags_error = false
 	
+	if len(def_tag_value) == 0 || def_tag_value[0] != -1:
+		default_tag_value = [-1]
+		push_error("Special tags initialisation failed -> skiped !
+					default_tag_value should begin with '-1' for depth")
+	else:
+		default_tag_value = def_tag_value.duplicate()
+	
+	for i in range(len(default_tag_value)):
+		tags.append([])
+	
 	for i in range(getNbrRoom()):
 		# TODO see if Array.resise() or something like this is usable here
 		visited.append(false)
@@ -41,20 +51,8 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 		for j in range(nbrNeighbors):
 			neighborsConnected[i].append(wallValue)
 		
-		tags.append([])
-		
-		if len(def_tag_value) == 0 || def_tag_value[0] != -1:
-			default_tag_value = [-1]
-			special_tags_error = true
-		else:
-			default_tag_value = def_tag_value.duplicate()
-		
 		for j in range(len(default_tag_value)):
 			tags[j].append(default_tag_value[j])
-	
-	if special_tags_error:
-		push_error("Special tags initialisation failed -> skiped !
-					default_tag_value should begin with '-1' for depth")
 	
 	constructNeig()
 	replaceValueForOutsideWalls(neighborsConnected)

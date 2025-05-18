@@ -2,8 +2,5 @@
 
 [ext_resource type="Script" path="res://scripts/test_generation_002.gd" id="1_c56x3"]
 
-[node name="test_genration_002" type="Node3D" node_paths=PackedStringArray("coord_first", "coord_right", "coord_up")]
+[node name="test_genration_002" type="Node3D"]
 script = ExtResource("1_c56x3")
-coord_first = NodePath("")
-coord_right = NodePath("")
-coord_up = NodePath("")

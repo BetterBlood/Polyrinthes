@@ -170,7 +170,7 @@ func generate(sizeP:int, new_seed:String = ""):
 	rng.seed = seed_hashed
 	
 	var colorBasedOnDepth = true
-	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth)
+	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1, 0, -2])
 	var sizeBase = cubeGraph.size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
