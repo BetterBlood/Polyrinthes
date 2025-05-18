@@ -170,7 +170,7 @@ func generate(sizeP:int, new_seed:String = ""):
 	rng.seed = seed_hashed
 	
 	var colorBasedOnDepth = true
-	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1])
+	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1, -1])
 	var sizeBase = cubeGraph.size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
@@ -296,6 +296,8 @@ func generate(sizeP:int, new_seed:String = ""):
 	
 	# DEBUG : for size > 2: update depth using tag_spread
 	#tag_spreads_wide_way(24, 0, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
+	# update second tag:
+	#tag_spreads_wide_way(24, 1, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
 	
 	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal):

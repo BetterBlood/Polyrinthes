@@ -27,10 +27,6 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 	outsideWallValue = outWallV
 	colorByDepth = byDepthColor
 	
-	current_tag.append(0)
-	
-	var special_tags_error = false
-	
 	if len(def_tag_value) == 0 || def_tag_value[0] != -1:
 		default_tag_value = [-1]
 		push_error("Special tags initialisation failed -> skiped !
@@ -40,6 +36,7 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 	
 	for i in range(len(default_tag_value)):
 		tags.append([])
+	current_tag = default_tag_value.duplicate()
 	
 	for i in range(getNbrRoom()):
 		# TODO see if Array.resise() or something like this is usable here
