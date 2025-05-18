@@ -56,13 +56,13 @@ var corridor_length = 15.6
 #var triColor:bool = true
 
 # SETUP debug without corridors, without exteriors walls
-#var debug_static_3x3 = false
-#var corridor_used: bool = false
-#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
-#var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+var debug_static_3x3 = false
+var corridor_used: bool = false
+var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+var debug: bool = true
+var newConnectionDebug: bool = true
+var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+var triColor:bool = true
 
 # SETUP debug without corridors, without walls
 #var debug_static_3x3 = false
@@ -74,13 +74,13 @@ var corridor_length = 15.6
 #var triColor:bool = true
 
 # SETUP normal mode
-var debug_static_3x3 = false
-var corridor_used: bool = false
-var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-var debug: bool = false
-var newConnectionDebug: bool = true
-var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-var triColor:bool = true
+#var debug_static_3x3 = false
+#var corridor_used: bool = false
+#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+#var debug: bool = false
+#var newConnectionDebug: bool = true
+#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+#var triColor:bool = true
 
 
 var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
@@ -170,7 +170,7 @@ func generate(sizeP:int, new_seed:String = ""):
 	rng.seed = seed_hashed
 	
 	var colorBasedOnDepth = true
-	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1, 0, -2])
+	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, colorBasedOnDepth, [-1])
 	var sizeBase = cubeGraph.size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
@@ -293,6 +293,9 @@ func generate(sizeP:int, new_seed:String = ""):
 		curr_pos = defaul_start_pos
 		up_nbr = 0
 		depth_nbr = 0
+	
+	# DEBUG : for size > 2: update depth using tag_spread
+	#tag_spreads_wide_way(24, 0, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
 	
 	time_start = Time.get_ticks_msec()
 	for i in range(sizeTotal):
@@ -1062,14 +1065,82 @@ func deepensPath_wideWay(beginId: int = 0):
 		neighborsNext = neighbors.duplicate()
 		neighbors.clear()
 		depth += 1
-		while(!neighborsNext.is_empty()) :
+		while(!neighborsNext.is_empty()):
 			var currentNeighbor:int = neighborsNext.pop_back() # neighbors to process
 			cubeGraph.setDepth(currentNeighbor, depth)
 			for i in cubeGraph.getNeighborsConnectionNotVisited(currentNeighbor):
 				neighbors.append(i)
 				cubeGraph.setVisited(i)
-		
+	
 	cubeGraph.setColorFromDepth()
+
+func clean_tag_wide_way(begin_id: int = 0, tag_id: int = 0, max_depth: int = 5, default_tag_value:int = -1) -> void:
+	cubeGraph.resetVisited()
+	
+	var neighbors: Array[int]
+	var depth: int = 0
+	neighbors = cubeGraph.getNeighborsConnectionNotVisited(begin_id)
+	cubeGraph.set_tag(begin_id, tag_id, default_tag_value)
+	cubeGraph.setVisited(begin_id)
+	for i in neighbors:
+		cubeGraph.setVisited(i)
+	
+	var neighborsNext: Array[int]
+	
+	while(!neighbors.is_empty() && depth < max_depth):
+		neighborsNext = neighbors.duplicate()
+		neighbors.clear()
+		depth += 1
+		
+		while(!neighborsNext.is_empty()):
+			var currentNeighbor:int = neighborsNext.pop_back()
+			cubeGraph.set_tag(currentNeighbor, tag_id, default_tag_value)
+			for i in cubeGraph.getNeighborsConnectionNotVisited(currentNeighbor):
+				neighbors.append(i)
+				cubeGraph.setVisited(i)
+
+func tag_spreads_wide_way(begin_id:int, tag_id:int, max_depth:int, values:Array) -> void:
+	if not cubeGraph.isInRange(begin_id):
+		push_error("begin_id out of range, aborted ! For current graph, should be lower than:", cubeGraph.getNbrRoom())
+		return
+	
+	if not cubeGraph.isTagInRange(tag_id):
+		push_error("tag_id not in tags, aborted ! For current graph, should be lower than:", cubeGraph.get_nbr_tag())
+		return
+	
+	if max_depth < 1:
+		push_error("max_depth cannot be less or equal to 0, aborted !")
+		return
+	
+	if len(values) - 1 < max_depth:
+		push_warning("Too fiew values, for max_depth: ", max_depth, ", len of values should be: ", 
+		max_depth + 1, ", actually is: ", len(values), "! Values sets to [0..", max_depth, "].")
+		values.clear()
+		values = range(max_depth + 1)
+	
+	cubeGraph.resetVisited()
+	
+	var neighbors: Array[int]
+	var depth: int = 0
+	neighbors = cubeGraph.getNeighborsConnectionNotVisited(begin_id)
+	cubeGraph.set_tag(begin_id, tag_id, values[depth])
+	cubeGraph.setVisited(begin_id)
+	for i in neighbors:
+		cubeGraph.setVisited(i)
+	
+	var neighborsNext: Array[int]
+	
+	while(!neighbors.is_empty() && depth < max_depth):
+		neighborsNext = neighbors.duplicate()
+		neighbors.clear()
+		depth += 1
+		
+		while(!neighborsNext.is_empty()):
+			var currentNeighbor:int = neighborsNext.pop_back()
+			cubeGraph.set_tag(currentNeighbor, tag_id, values[depth])
+			for i in cubeGraph.getNeighborsConnectionNotVisited(currentNeighbor):
+				neighbors.append(i)
+				cubeGraph.setVisited(i)
 
 func instantiatePyramidConnection(mazeUsed: Dictionary):
 	if !newConnectionDebug:

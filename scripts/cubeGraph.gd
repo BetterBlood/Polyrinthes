@@ -296,6 +296,9 @@ func getNbrRoom():
 func getNbrRoomOnASide():
 	return size * size
 
+func get_nbr_tag() -> int:
+	return len(default_tag_value)
+
 func getColor(id: int):
 	if isInRange(id):
 		return colorsIds[id]
@@ -324,14 +327,27 @@ func setDepth(id: int, depth: int):
 		tags[0][id] = depth 
 		if current_tag[0] < depth :
 			current_tag[0] = depth
-			lastVisited = id
+			lastVisited = id # TODO : should be better to remove this to avoid side effect
 			#print("lastVisited:", lastVisited)
+
+func set_tag(room_id:int, tag_id:int, value:int) -> bool:
+	if not isInRange(room_id) || not tag_id < len(tags):
+		return false
+	
+	tags[tag_id][room_id] = value
+	if current_tag[tag_id] < value:
+		current_tag[tag_id] = value
+	
+	return true
 
 func setColorFromDepth():
 	colorsIds = tags[0].duplicate()
 
 func isInRange(id: int):
 	return id < getNbrRoom() && id >= 0
+
+func isTagInRange(tag_id: int) -> bool:
+	return tag_id < len(default_tag_value)
 
 func isVisited(id: int):
 	return not isInRange(id) || visited[id]
