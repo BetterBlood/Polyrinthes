@@ -1,5 +1,6 @@
 @tool
 extends Node
+
 class_name CubeGraph
 
 var neighbors = []
@@ -7,9 +8,8 @@ var neighborsConnected = []
 var lastVisited = 0 # deprecated
 var visited:Array[bool] = []
 var processing:Array[bool] = []
-var colorByDepth = true
 
-var size: int
+var _size: int
 var nbrNeighbors: int
 var wallValue: int
 var outsideWallValue: int
@@ -19,12 +19,11 @@ var current_tag = [] # tab of tag (current state if needed)
 var default_tag_value = []
 
 func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2, 
-		nbrN: int = 6, byDepthColor: bool = true, def_tag_value:Array = [-1, -1]):
-	size = mazeSize
+		nbrN: int = 6, def_tag_value:Array = [-1, -1]):
+	_size = mazeSize
 	nbrNeighbors = nbrN
 	wallValue = wallV
 	outsideWallValue = outWallV
-	colorByDepth = byDepthColor
 	
 	if len(def_tag_value) < 2 || def_tag_value[0] != -1 || def_tag_value[1] != -1:
 		default_tag_value = [-1, -1]
@@ -52,10 +51,10 @@ func _init(mazeSize: int = 3, wallV: int = -1, outWallV: int = -2,
 	
 	current_tag[1] = 0
 	
-	constructNeig()
-	replaceValueForOutsideWalls(neighborsConnected)
+	_constructNeig()
+	_replaceValueForOutsideWalls(neighborsConnected)
 
-func constructNeig():
+func _constructNeig():
 	# (backward, forward, left, right, down, up)
 	var roomsNumber = getNbrRoom()
 	var faceSize = getNbrRoomOnASide()
@@ -68,44 +67,44 @@ func constructNeig():
 		neighbors[i].insert(0, wallValue) # backward is empty for the front side
 		neighbors[i].insert(1, i + faceSize); # forward
 		
-		for j in range(1, size - 1):
+		for j in range(1, _size - 1):
 			neighbors[i + j * faceSize].insert(0, i + (j - 1) * faceSize) # backward
 			neighbors[i + j * faceSize].insert(1, i + (j + 1) * faceSize) # forward
 		
-		neighbors[i + (size - 1) * faceSize].insert(0, i + (size - 2) * faceSize) # backward
-		neighbors[i + (size - 1) * faceSize].insert(1, wallValue) # forward is empty for the back side
+		neighbors[i + (_size - 1) * faceSize].insert(0, i + (_size - 2) * faceSize) # backward
+		neighbors[i + (_size - 1) * faceSize].insert(1, wallValue) # forward is empty for the back side
 	
 	for i in range(faceSize): 
 		# left + right
-		neighbors[i * size].insert(2, wallValue) # left is empty for the left side
-		neighbors[i * size].insert(3, i * size + 1) # right
+		neighbors[i * _size].insert(2, wallValue) # left is empty for the left side
+		neighbors[i * _size].insert(3, i * _size + 1) # right
 		
-		for j in range(1, size - 1):
-			neighbors[i * size + j].insert(2, i * size + j - 1) # left
-			neighbors[i * size + j].insert(3, i * size + j + 1) # right
+		for j in range(1, _size - 1):
+			neighbors[i * _size + j].insert(2, i * _size + j - 1) # left
+			neighbors[i * _size + j].insert(3, i * _size + j + 1) # right
 			
-		neighbors[i * size + size - 1].insert(2, i * size + size - 2) # left
-		neighbors[i * size + size - 1].insert(3, wallValue) # right is empty for the right side
+		neighbors[i * _size + _size - 1].insert(2, i * _size + _size - 2) # left
+		neighbors[i * _size + _size - 1].insert(3, wallValue) # right is empty for the right side
 	
 	var floorC = 0
 	for i in range(faceSize): 
 		# down + up
-		neighbors[i%size + floorC*faceSize].insert(4, wallValue) # down is empty for the down side
-		neighbors[i%size + floorC*faceSize].insert(5, i%size + floorC*faceSize + size) # up
+		neighbors[i%_size + floorC*faceSize].insert(4, wallValue) # down is empty for the down side
+		neighbors[i%_size + floorC*faceSize].insert(5, i%_size + floorC*faceSize + _size) # up
 		
-		for j in range(1, size - 1):
-			neighbors[i%size + floorC*faceSize + j*size].insert(4, i%size + floorC*faceSize + (j - 1)*size) # down
-			neighbors[i%size + floorC*faceSize + j*size].insert(5, i%size + floorC*faceSize + (j + 1)*size) # up
+		for j in range(1, _size - 1):
+			neighbors[i%_size + floorC*faceSize + j*_size].insert(4, i%_size + floorC*faceSize + (j - 1)*_size) # down
+			neighbors[i%_size + floorC*faceSize + j*_size].insert(5, i%_size + floorC*faceSize + (j + 1)*_size) # up
 		
-		neighbors[i%size + floorC*faceSize + (size - 1) * size].insert(4, i%size + floorC*faceSize + (size - 2) * size) # down
-		neighbors[i%size + floorC*faceSize + (size - 1) * size].insert(5, wallValue) # up is empty for the up side
+		neighbors[i%_size + floorC*faceSize + (_size - 1) * _size].insert(4, i%_size + floorC*faceSize + (_size - 2) * _size) # down
+		neighbors[i%_size + floorC*faceSize + (_size - 1) * _size].insert(5, wallValue) # up is empty for the up side
 
-		if i%size == size - 1:
+		if i%_size == _size - 1:
 			floorC += 1
 	
 	#print(neighbors)
 
-func replaceValueForOutsideWalls(array):
+func _replaceValueForOutsideWalls(array):
 	# (backward, forward, left, right, down, up)
 	for i in range(getNbrRoom()):
 		if i < getNbrRoomOnASide():
@@ -115,17 +114,17 @@ func replaceValueForOutsideWalls(array):
 			array[i].remove_at(1)
 			array[i].insert(1, outsideWallValue)
 		
-		if i%getNbrRoomOnASide() < size:
+		if i%getNbrRoomOnASide() < _size:
 			array[i].remove_at(4)
 			array[i].insert(4, outsideWallValue)
-		if i%getNbrRoomOnASide() > getNbrRoomOnASide() - size - 1:
+		if i%getNbrRoomOnASide() > getNbrRoomOnASide() - _size - 1:
 			array[i].remove_at(5)
 			array[i].insert(5, outsideWallValue)
 		
-		if i%size == 0:
+		if i%_size == 0:
 			array[i].remove_at(2)
 			array[i].insert(2, outsideWallValue)
-		if i%size == size - 1:
+		if i%_size == _size - 1:
 			array[i].remove_at(3)
 			array[i].insert(3, outsideWallValue)
 
@@ -133,7 +132,7 @@ func replaceValueForOutsideWalls(array):
 func getNeighbors(id: int) -> Array[int]:
 	var neighborsForId : Array[int] = []
 	#neighbors[id] = neighbors[id].filter(func(number): return number != -1)
-	#print("id: ", id, ", size: ", len(neighbors[id]), ", neighbors[id]: ", neighbors[id])
+	#print("id: ", id, ", _size: ", len(neighbors[id]), ", neighbors[id]: ", neighbors[id])
 	for i in range(nbrNeighbors):
 		#print("i: ", i, ", neighbors[id][i]: ", neighbors[id][i])
 		neighborsForId.append(neighbors[id][i])
@@ -201,22 +200,6 @@ func connectNeighbors(id1, id2):
 		print("ERROR : cannot connect ", id1, " and ", id2, ", they are not Neighbors !")
 		return
 	
-	# first color instead of overwrite color and first approach to debug with colors
-	if not colorByDepth :
-		if tags[1][id1] == -1 :
-			tags[1][id1] = current_tag[1]
-		if tags[1][id2] == -1 :
-			#current_tag[1] += 1
-			tags[1][id2] = current_tag[1] + 1
-			lastVisited = current_tag[1] + 1
-		current_tag[1] += 1
-#	else :
-#		if tags[1][id1] == -1 :
-#			tags[1][id1] = depths[id1]
-#		if tags[1][id2] == -1 :
-#			current_tag[1] += 1
-#			tags[1][id2] = depths[id2]
-	
 	# left, right
 	if id1 + 1 == id2:
 		neighborsConnected[id1][3] = id2
@@ -234,10 +217,10 @@ func connectNeighbors(id1, id2):
 		neighborsConnected[id2][1] = id1
 	
 	# down, up
-	elif id1 + size == id2:
+	elif id1 + _size == id2:
 		neighborsConnected[id1][5] = id2
 		neighborsConnected[id2][4] = id1
-	elif id1 - size == id2:
+	elif id1 - _size == id2:
 		neighborsConnected[id1][4] = id2
 		neighborsConnected[id2][5] = id1
 
@@ -265,10 +248,10 @@ func disconnectNeighbors(id1, id2):
 		neighborsConnected[id2][1] = wallValue
 	
 	# down, up
-	if id1 + size == id2:
+	if id1 + _size == id2:
 		neighborsConnected[id1][5] = wallValue
 		neighborsConnected[id2][4] = wallValue
-	if id1 - size == id2:
+	if id1 - _size == id2:
 		neighborsConnected[id1][4] = wallValue
 		neighborsConnected[id2][5] = wallValue
 
@@ -289,10 +272,10 @@ func areNeighbors(id1, id2):
 	return false
 
 func getNbrRoom():
-	return size * size * size
+	return _size * _size * _size
 
 func getNbrRoomOnASide():
-	return size * size
+	return _size * _size
 
 func get_nbr_tag() -> int:
 	return len(default_tag_value)

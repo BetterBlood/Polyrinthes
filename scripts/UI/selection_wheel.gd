@@ -30,7 +30,7 @@ func _draw():
 	)
 
 func drawParts():
-	var edgeSizeLabelRadius = (bigRadius - smallRadius) / 2 + smallRadius
+	var edgeSizeLabelRadius = (bigRadius - smallRadius) / 2.0 + smallRadius
 	var angle = -(2 * PI) / (len(possibleEdgesSize) + 1)
 	var offset = -10
 	

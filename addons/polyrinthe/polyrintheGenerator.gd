@@ -1,9 +1,10 @@
+@tool
 extends Node3D
 
+class_name Polyrinthe
+
 const CubeCustom := preload("res://addons/polyrinthe/CubeCustom.gd")
-#const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://addons/polyrinthe/cubeGraph.gd")
-const wall = preload("res://scenes/wall.tscn") # DEBUG
 
 @export_category("Polyrinthe")
 @export_group("Generation Properties")
@@ -13,75 +14,16 @@ const wall = preload("res://scenes/wall.tscn") # DEBUG
 @export var coord_up: Marker3D
 
 @export_group("Design Properties")
-@export var wall_mat:StandardMaterial3D #= preload("res://materials/wallMaterial.tres")
+@export var wall_mat:StandardMaterial3D
 ## be carefull, it is not recommanded using a scale greater than 10
 @export_range(0.5, 2, 0.1, "or_greater") var room_scale:float = 1.0
 
-const corridor = preload("res://scenes/Test/corridor.tscn") # TEST & DEBUG
-const sphere = preload("res://addons/polyrinthe/sphere.tscn") # DEBUG
 var cubeGraph: CubeGraph
 
-const TruncatedOctahedron := preload("res://scenes/octaedre_tronque.tscn") # DEBUG
-
-var mazeAll:Dictionary= {} # DEBUG
 var maze:Dictionary= {}
-var mazeTruncOcta:Dictionary= {} # DEBUG
 
 var size = 3 # default size
-# 10.5 : normal spacing for cube rooms
-# 21 : spacing to add gap between cube rooms
 var gapBetweenRooms_multiplier = 1 # 1 for no gap, other value for DEBUG
-var corridor_length = 15.6
-
-# SETUP for 3x3 debug static with corridors and all walls
-#var debug_static_3x3 = true
-#var corridor_used: bool = true
-##var outWallV = CubeCustom.wallValue
-##var debug: bool = true
-#var newConnectionDebug: bool = true
-##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-
-# SETUP for 3x3 debug static with corridors, outside walls open
-#var debug_static_3x3 = true
-#var corridor_used: bool = true
-##var outWallV = CubeCustom.outSideWallValue
-##var debug: bool = true
-#var newConnectionDebug: bool = true
-##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-
-# SETUP debug without corridors, with all walls
-#var debug_static_3x3 = false
-#var corridor_used: bool = false
-##var outWallV = CubeCustom.wallValue 
-##var debug: bool = true
-#var newConnectionDebug: bool = true
-##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-
-# SETUP debug without corridors, without exteriors walls
-#var debug_static_3x3 = false
-#var corridor_used: bool = false
-##var outWallV = CubeCustom.outSideWallValue 
-##var debug: bool = true
-#var newConnectionDebug: bool = true
-##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-
-# SETUP debug without corridors, without walls
-var debug_static_3x3 = false
-var corridor_used: bool = false
-#var outWallV = CubeCustom.outSideWallValue 
-#var debug: bool = true
-var newConnectionDebug: bool = true
-#var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
-
-
-# SETUP normal mode
-#var debug_static_3x3 = false
-#var corridor_used: bool = false
-##var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-##var debug: bool = false
-#var newConnectionDebug: bool = true
-##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-
 
 @export_group("DEBUG")
 @export var debug: bool = false
@@ -89,8 +31,8 @@ var newConnectionDebug: bool = true
 
 ##
 ## when showWall is set to true:
-##	-1 : show outside wall
-## 	-2 : hide outside wall
+##	-1 : show outside wall,
+##	-2 : hide outside wall,
 ## no effect otherwise
 ##
 @export_range(CubeCustom.outSideWallValue, CubeCustom.wallValue) 
@@ -102,18 +44,11 @@ var triColor:bool = true
 var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
 var gapBetweenCubeCenter = (CubeCustom.distFromCenter * 2 + 0.1) * \
 		gapBetweenRooms_multiplier
-var gapBetweenCubeCenter_with_corridor = gapBetweenCubeCenter + corridor_length
-var gapBetweenTruncatedOctahedronCenter = \
-		(TruncatedOctahedronCustom.distFromCenter_square*2 + 0.25) * \
-		gapBetweenRooms_multiplier
-
-var thread: Thread
-signal end_generate()
 
 var rng = RandomNumberGenerator.new()
 var seed_human:String
 var seed_hashed:int
-var characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+var _characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 enum GENERATION_ALGORITHME { 
 	DFS_3D, 
@@ -128,45 +63,13 @@ enum GENERATION_ALGORITHME {
 	DFS_LBL_ALT_6 
 }
 
-# Called when the node enters the scene tree for the first time.
 func _ready(): # (backward, forward, left, right, down, up)
-	
-	#rng.seed = hash("DEBUG")
-	#print(rng.get_seed())
-	
-	#generate(size)
-	
-#	var truncOcta = TruncatedOctahedron.instantiate()
-#	truncOcta.position = Vector3(0, 0, 50)
-#	add_child(truncOcta)
-#
-#	var truncOctaCust = TruncatedOctahedronCustom.new(
-#		Vector3(50, 0, 50), 
-#		[-1, -1, -1, -1, -1, -1], 
-#		0, 
-#		0,
-#		false,
-#		true,
-#		true
-#	)
-#
-#	add_child(truncOctaCust)
-	if debug_static_3x3:
-		var colorBasedOnDepth = true
-		cubeGraph = CubeGraph.new(size, wallV, outWallV, 6, colorBasedOnDepth)
-		
-		if corridor_used:
-			gapBetweenCubeCenter = gapBetweenCubeCenter_with_corridor
-		else:
-			gapBetweenCubeCenter = gapBetweenCubeCenter_with_corridor - corridor_length
-		exampleDebugforsize3()
-	
 	pass
 
 func _process(_delta):
 	pass
 
-func generate_seeds(chars:String = characters, length:int = 10) -> void :
+func _generate_seeds(chars:String = _characters, length:int = 10) -> void :
 	seed_human = ""
 	var chars_len = len(chars)
 	for i in range(length):
@@ -177,14 +80,13 @@ func generate_seeds(chars:String = characters, length:int = 10) -> void :
 
 func generate(sizeP:int, new_seed:String = ""):
 	if len(new_seed) == 0:
-		generate_seeds()
+		_generate_seeds()
 	else:
 		seed_human = new_seed
 		seed_hashed = hash(seed_human)
 	
 	rng.seed = seed_hashed
 	
-	var colorBasedOnDepth = true
 	cubeGraph = CubeGraph.new(sizeP, wallV, outWallV, 6, [-1, -1])
 	
 	# only for normal generation : odd size, middle: cubeGraph.getNbrRoom()/2 
@@ -239,12 +141,9 @@ func generate(sizeP:int, new_seed:String = ""):
 	
 	print("cubeGraph.getNbrRoom(): ", cubeGraph.getNbrRoom(), ", depth: ", cubeGraph.get_deepest())
 	
-	if colorBasedOnDepth:
-		cubeGraph.setColorFromDepth()
-	
-	display()
+	cubeGraph.setColorFromDepth()
 
-func get_rotation_from_basis(src_basis: Basis, dst_basis: Basis) -> Vector3:
+func _get_rotation_from_basis(src_basis: Basis, dst_basis: Basis) -> Vector3:
 	src_basis.orthonormalized()
 	dst_basis.orthonormalized()
 	var rel = dst_basis * src_basis.transposed()
@@ -281,67 +180,16 @@ func display() -> void:
 		depth_gap.normalized()
 	)
 	
-	var euler = get_rotation_from_basis(source, target)
+	var euler = _get_rotation_from_basis(source, target)
 	
 	var time_start
 	var time_end
 	
-	var sizeBase = cubeGraph.size
+	var sizeBase = cubeGraph._size
 	var sizeFace = cubeGraph.getNbrRoomOnASide()
 	var sizeTotal = cubeGraph.getNbrRoom()
 	
 	var depthReached = cubeGraph.get_deepest()
-	
-	if debug:
-		time_start = Time.get_ticks_msec()
-		for i in range(sizeTotal):
-			#if i%cubeGraph.size == cubeGraph.size - 1: print((100*i)/cubeGraph.getNbrRoom(), "%")
-			#print(xCoord, " ", yCoord, " ", zCoord)
-			#print(cubeGraph.getNeighbors(i))
-			var cube = CubeCustom.new(
-				curr_pos, 
-				cubeGraph.getNeighbors(i),
-				cubeGraph.getColor(i), 
-				depthReached,
-				debug,
-				showWall,
-				triColor,
-				wall_mat,
-				room_scale
-			)
-			
-			cube.rotation = euler
-			
-			add_child(cube)
-			mazeAll[i] = cube
-			
-			#xCoord += gapBetweenCubeCenter
-			curr_pos += right_gap
-			
-			if i%(sizeBase) == sizeBase - 1:
-				up_nbr += 1
-				curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
-			
-			if i%(sizeFace) == (sizeFace) - 1:
-				up_nbr = 0
-				depth_nbr += 1
-				curr_pos = defaul_start_pos + up_gap * up_nbr + depth_gap * depth_nbr
-		
-		time_end = Time.get_ticks_msec()
-		print("Display with all neighbors: 100% in " + str((time_end - time_start)/1000) + "s " + \
-			str((time_end - time_start)%1000) + "ms.")
-		
-		time_start = Time.get_ticks_msec()
-		instantiatePyramidConnection_allNeighbors(mazeAll)
-		time_end = Time.get_ticks_msec()
-		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s " + \
-			str((time_end - time_start)%1000) + "ms.")
-			
-		# reset to new location :
-		defaul_start_pos = coord_first.position + right_gap * (sizeBase + 1)
-		curr_pos = defaul_start_pos
-		up_nbr = 0
-		depth_nbr = 0
 	
 	# DEBUG: for size > 2: update depth using tag_spread from room 24
 	#tag_spreads_wide_way(24, 0, 4, [0, depthReached*1/4, depthReached*2/4, depthReached*3/4, depthReached])
@@ -399,65 +247,14 @@ func display() -> void:
 		time_end = Time.get_ticks_msec()
 		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
 			str((time_end - time_start)%1000) + "ms.\n")
-	
-	# truncated octahedron: TODO: need to upgrade to vect instead of coords
-#	var xCoordBase = -(gapBetweenCubeCenter * (sizeBase / 2))
-#	var yCoordBase = 0
-#	var zCoordBase = -50
-#	var xCoord = xCoordBase
-#	var yCoord = yCoordBase
-#	var zCoord = zCoordBase
-#	# reset to new location (for truncated octahedron):
-#	xCoordBase = xCoordBase + gapBetweenCubeCenter * sizeBase + gapBetweenTruncatedOctahedronCenter
-#	xCoord = xCoordBase
-#	yCoord = yCoordBase
-#	zCoord = zCoordBase
-#
-#	time_start = Time.get_ticks_msec()
-#	for i in range(sizeTotal): # TODO : truncatedOctahedronGraph (to file empty spaces with usable rooms)
-#		var truncatedOctahedron = TruncatedOctahedronCustom.new(
-#			Vector3(xCoord,yCoord,zCoord), 
-#			cubeGraph.getNeighborsConnection(i), 
-#			cubeGraph.getColor(i), 
-#			depthReached,
-#			debug,
-#			showWall,
-#			triColor
-#		)
-#
-#		add_child(truncatedOctahedron)
-#		mazeTruncOcta[i] = truncatedOctahedron
-#
-#		xCoord += gapBetweenTruncatedOctahedronCenter
-#
-#		if i%(sizeBase) == sizeBase - 1:
-#			xCoord = xCoordBase
-#			yCoord += gapBetweenTruncatedOctahedronCenter
-#
-#		if i%(sizeFace) == (sizeFace) - 1:
-#			yCoord = yCoordBase
-#			zCoord -= gapBetweenTruncatedOctahedronCenter
-#
-#	time_end = Time.get_ticks_msec()
-#	print("100% truncated octahedron in " + \
-#		str((time_end - time_start)/1000) + "s "+ str((time_end - time_start)%1000) + "ms.")
-#
-#	if debug:
-#		time_start = Time.get_ticks_msec()
-#		instantiatePyramidConnection(mazeTruncOcta)
-#		time_end = Time.get_ticks_msec()
-#		print("instantiatePyramid in " + str((time_end - time_start)/1000) + "s "+ \
-#			str((time_end - time_start)%1000) + "ms.\n\n")
 
 func _on_menu_generation(edgeSize) -> void:
 	clean()
 	generate(edgeSize)
+	display()
 
 func clean() -> void:
 	maze.clear()
-	mazeAll.clear()
-	mazeTruncOcta.clear()
-	
 	for i in self.get_children():
 		if i is CubeCustom or i is TruncatedOctahedronCustom:
 			i.clean()
@@ -469,103 +266,6 @@ func clean() -> void:
 	
 	if cubeGraph != null:
 		cubeGraph.clean()
-
-func exampleDebugforsize3():
-	if cubeGraph.size == 3 :
-		# floor 1
-		cubeGraph.connectNeighbors(18, 19)
-		cubeGraph.connectNeighbors(19, 10)
-		cubeGraph.connectNeighbors(19, 20)
-		cubeGraph.connectNeighbors(20, 11)
-		cubeGraph.connectNeighbors(11, 2)
-		cubeGraph.connectNeighbors(2, 1)
-		cubeGraph.connectNeighbors(1, 0)
-		cubeGraph.connectNeighbors(0, 9)
-
-		# floor connection from 1 to 2
-		cubeGraph.connectNeighbors(9, 12)
-
-		# floor 2
-		cubeGraph.connectNeighbors(12, 13)
-		cubeGraph.connectNeighbors(13, 22)
-		cubeGraph.connectNeighbors(22, 21)
-		cubeGraph.connectNeighbors(13, 14)
-		cubeGraph.connectNeighbors(14, 23)
-		cubeGraph.connectNeighbors(14, 5)
-		cubeGraph.connectNeighbors(5, 4)
-		cubeGraph.connectNeighbors(4, 3)
-
-		# floor connection from 2 to 3
-		cubeGraph.connectNeighbors(3, 6)
-
-		# floor 3
-		cubeGraph.connectNeighbors(6, 15)
-		cubeGraph.connectNeighbors(15, 24)
-		cubeGraph.connectNeighbors(24, 25)
-		cubeGraph.connectNeighbors(25, 26)
-		cubeGraph.connectNeighbors(26, 17)
-		cubeGraph.connectNeighbors(17, 8)
-		cubeGraph.connectNeighbors(8, 7)
-		cubeGraph.connectNeighbors(7, 16)
-		
-		var xCoordBase = -(gapBetweenCubeCenter * (3 / 2))
-		var yCoordBase = 0
-		
-		var xCoord = xCoordBase
-		var yCoord = yCoordBase
-		var zCoord = -50
-		
-		var sphereStart = sphere.instantiate()
-		sphereStart.get_child(0).mesh.material.albedo_color = Color(1, 1, 1, 1)
-		sphereStart.set_position(
-			Vector3(0 + xCoord, 0 + yCoord, gapBetweenCubeCenter*-2 + zCoord)
-		)
-		add_child(sphereStart)
-		
-		deepensPath_wideWay(18)
-		cubeGraph.setColorFromDepth()
-		
-		var depthReached = cubeGraph.get_deepest()
-		
-		for i in range(cubeGraph.getNbrRoom()):
-			var cube = CubeCustom.new(
-				Vector3(xCoord,yCoord,zCoord), 
-				cubeGraph.getNeighborsConnection(i),
-				cubeGraph.getColor(i), 
-				depthReached,
-				false,
-				true,
-				true
-			)
-			
-			add_child(cube)
-			maze[i] = cube
-			
-			xCoord += gapBetweenCubeCenter
-			
-			if i%3 == 3 - 1:
-				xCoord = xCoordBase
-				yCoord += gapBetweenCubeCenter
-			
-			if i%9 == 9 - 1:
-				yCoord = yCoordBase
-				zCoord -= gapBetweenCubeCenter
-				
-		instantiatePyramidConnection(maze)
-		if corridor_used:
-			instantiate_corridors(maze)
-		
-		
-		var sphereEnd = sphere.instantiate()
-		sphereEnd.get_child(0).mesh.material.albedo_color = Color(0, 0, 0, 1)
-		sphereEnd.set_position(
-			Vector3(
-				gapBetweenCubeCenter + xCoord, 
-				gapBetweenCubeCenter*2 + yCoord, 
-				gapBetweenCubeCenter*2 + zCoord
-			)
-		)
-		add_child(sphereEnd)
 
 func createPath_deepWay(beginId: int = 0):
 	var neighborsToExplo = []
@@ -657,7 +357,6 @@ func createPath_deepWay_alt_2(beginId: int = 0):
 		currId = newId
 
 # TODO : a deepgeneration with sometimes a switch on wide generation
-
 
 func createPath_deepWay_layer_by_layer(beginId: int = 0):
 	var neighborsToExplo = []
@@ -845,7 +544,7 @@ func createPath_deepWay_layer_by_layer_alt_3(beginId: int = 0):
 		cubeGraph.setDepth(currId, depth + 1)
 		stack.append(currId)
 
-# cubeGraph.size*(1/3) transitions between layers
+# cubeGraph._size*(1/3) transitions between layers
 func createPath_deepWay_layer_by_layer_alt_4(beginId: int = 0):
 	var neighborsToExplo = []
 	var stack = []
@@ -857,7 +556,7 @@ func createPath_deepWay_layer_by_layer_alt_4(beginId: int = 0):
 	var secondLayerTransitionId = []
 	var lastSecondId = []
 	var lastDeepestId = deepestId
-	var additionalConnections = int(cubeGraph.size * (1/3.) - 1)
+	var additionalConnections = int(cubeGraph._size * (1/3.) - 1)
 	
 	for i in range(additionalConnections):
 		secondLayerTransitionId.append(-1)
@@ -928,7 +627,7 @@ func createPath_deepWay_layer_by_layer_alt_4(beginId: int = 0):
 		cubeGraph.setDepth(currId, depth + 1)
 		stack.append(currId)
 
-# random number of transition transitions between layers max : cubeGraph.size*(1/3)
+# random number of transition transitions between layers max : cubeGraph._size*(1/3)
 func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 	var neighborsToExplo = []
 	var stack = []
@@ -940,7 +639,7 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 	var lastSecondId = []
 	var lastDeepestId = deepestId
 	var secondLayerTransitionId = []
-	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
+	var maxAdditionalConnections = int(cubeGraph._size * (1/3.) - 1)
 	var currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 	
 	for i in range(maxAdditionalConnections):
@@ -1014,7 +713,7 @@ func createPath_deepWay_layer_by_layer_alt_5(beginId: int = 0):
 		cubeGraph.setDepth(currId, depth + 1)
 		stack.append(currId)
 
-# random number of transition transitions between layers max : cubeGraph.size*(1/3)
+# random number of transition transitions between layers max : cubeGraph._size*(1/3)
 # shuffle the stack on deadend
 func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 	var neighborsToExplo = []
@@ -1027,7 +726,7 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 	var lastSecondId = []
 	var lastDeepestId = deepestId
 	var secondLayerTransitionId = []
-	var maxAdditionalConnections = int(cubeGraph.size * (1/3.) - 1)
+	var maxAdditionalConnections = int(cubeGraph._size * (1/3.) - 1)
 	var currentAdditionalConnection = rng.randi_range(0, maxAdditionalConnections)
 	
 	for i in range(maxAdditionalConnections):
@@ -1106,7 +805,7 @@ func createPath_deepWay_layer_by_layer_alt_6(beginId: int = 0):
 
 
 # BE CAREFUL : this function reset depth and color stored of cubeGraph 
-# using beginId for the new generation base : 0 by default
+# using beginId for the new depth computation, 0 by default
 func deepensPath_wideWay(beginId: int = 0):
 	cubeGraph.reset_Depth_Color_Visited()
 	
@@ -1200,8 +899,6 @@ func tag_spreads_wide_way(begin_id:int, tag_id:int, max_depth:int, values:Array)
 				cubeGraph.setVisited(i)
 
 func instantiatePyramidConnection(mazeUsed: Dictionary):
-	if !newConnectionDebug:
-		return
 	var depthReached = cubeGraph.get_deepest()
 	for id in mazeUsed:
 		for i in cubeGraph.getNextNeighbors(id):
@@ -1214,48 +911,7 @@ func instantiatePyramidConnection(mazeUsed: Dictionary):
 				)
 			)
 
-func instantiate_corridors(mazeUsed: Dictionary):
-	if !newConnectionDebug:
-		return
-	for id in mazeUsed:
-		for i in cubeGraph.getNextNeighbors(id):
-			instantiate_corridor(
-				mazeUsed[id].getCenter(),
-				get_rotation_for_positions(mazeUsed[id].getCenter(), mazeUsed[i].getCenter())
-			)
-
-func get_rotation_for_positions(from: Vector3, to: Vector3) -> Vector3:
-	var direction := to - from
-	var epsilon = 0.001
-	
-	if direction.x > epsilon:
-		return Vector3()
-	if direction.x < -epsilon:
-		return Vector3(0, PI, 0)
-	
-	if direction.y > epsilon:
-		return Vector3(0, 0, PI/2)
-	if direction.y < -epsilon:
-		return Vector3(0, 0, -PI/2)
-	
-	if direction.z > epsilon:
-		return Vector3(0, -PI/2, 0)
-	if direction.z < -epsilon:
-		return Vector3(0, PI/2, 0)
-	
-	return Vector3()
-
-func instantiate_corridor(center_pos: Vector3, rot: Vector3):
-	var connectionTmp = corridor.instantiate()
-	
-	connectionTmp.set_position(center_pos)
-	connectionTmp.set_rotation(rot)
-	
-	add_child(connectionTmp)
-
 func instantiatePyramidConnection_allNeighbors(mazeUsed: Dictionary):
-	if !newConnectionDebug:
-		return
 	var depthReached = cubeGraph.get_deepest()
 	for id in mazeUsed:
 		for i in cubeGraph.getNeighbors(id):

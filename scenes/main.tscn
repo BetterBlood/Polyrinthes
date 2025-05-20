@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://dd1d3b6floyek"]
 
-[ext_resource type="PackedScene" uid="uid://doed2qxcxjosw" path="res://scenes/test_generation_002.tscn" id="1_4tfd7"]
+[ext_resource type="Script" path="res://addons/polyrinthe/polyrintheGenerator.gd" id="1_vl8qx"]
 [ext_resource type="Material" uid="uid://bigktdomoryie" path="res://materials/debug.tres" id="2_fkan0"]
 [ext_resource type="PackedScene" uid="uid://b0wgyq3xq5jsp" path="res://scenes/UI/menu.tscn" id="3_7r5ek"]
 [ext_resource type="PackedScene" uid="uid://cfkgshoc48ins" path="res://scenes/player.tscn" id="4_f5gas"]
@@ -26,13 +26,13 @@ glow_enabled = true
 
 [node name="Main" type="Node3D"]
 
-[node name="test_genration_002" parent="." node_paths=PackedStringArray("coord_first", "coord_right", "coord_up") instance=ExtResource("1_4tfd7")]
-algo = 9
+[node name="PolyrintheGenerator" type="Node3D" parent="." node_paths=PackedStringArray("coord_first", "coord_right", "coord_up")]
+script = ExtResource("1_vl8qx")
 coord_first = NodePath("../First")
 coord_right = NodePath("../Right")
 coord_up = NodePath("../Up")
 debug = true
-outWallV = -2
+showWall = false
 
 [node name="First" type="Marker3D" parent="."]
 
@@ -71,4 +71,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30)
 
 [node name="Menu" parent="Other" instance=ExtResource("3_7r5ek")]
 
-[connection signal="generation" from="Other/Menu" to="test_genration_002" method="_on_menu_generation"]
+[connection signal="generation" from="Other/Menu" to="PolyrintheGenerator" method="_on_menu_generation"]

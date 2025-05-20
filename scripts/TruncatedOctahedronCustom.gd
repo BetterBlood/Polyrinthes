@@ -5,7 +5,7 @@ class_name TruncatedOctahedronCustom
 const connection = preload("res://scenes/connection.tscn")
 const squareWall = preload("res://scenes/wall.tscn")
 const hexagonWall = preload("res://scenes/hexagon.tscn")
-const sphere = preload("res://scenes/sphere.tscn")
+const sphere = preload("res://addons/polyrinthe/sphere.tscn")
 
 const distFromCenter_square:float = 17.5
 const distFromCenter_hexagon = 8.8 
