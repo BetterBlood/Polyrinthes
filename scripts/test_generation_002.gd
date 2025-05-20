@@ -1,15 +1,22 @@
+@tool
 extends Node3D
+
 const CubeCustom := preload("res://scripts/CubeCustom.gd")
 const TruncatedOctahedronCustom := preload("res://scripts/TruncatedOctahedronCustom.gd")
 const CubeGraph := preload("res://scripts/cubeGraph.gd")
 const wall = preload("res://scenes/wall.tscn") # DEBUG
 
-@export var wall_mat:StandardMaterial3D #= preload("res://materials/wallMaterial.tres")
+@export_category("Polyrinthe")
+@export_group("Generation Properties")
 @export var algo:= GENERATION_ALGORITHME.DFS_3D_ALT_2
-
 @export var coord_first: Marker3D
 @export var coord_right: Marker3D
 @export var coord_up: Marker3D
+
+@export_group("Design Properties")
+@export var wall_mat:StandardMaterial3D #= preload("res://materials/wallMaterial.tres")
+## be carefull, it is not recommanded using a scale greater than 10
+@export_range(0.5, 2, 0.1, "or_greater") var room_scale:float = 1.0
 
 const corridor = preload("res://scenes/Test/corridor.tscn") # TEST & DEBUG
 const sphere = preload("res://scenes/sphere.tscn") # DEBUG
@@ -26,62 +33,72 @@ var size = 3 # default size
 # 21 : spacing to add gap between cube rooms
 var gapBetweenRooms_multiplier = 1 # 1 for no gap, other value for DEBUG
 var corridor_length = 15.6
-@export var room_scale:float = 1.0
 
 # SETUP for 3x3 debug static with corridors and all walls
 #var debug_static_3x3 = true
 #var corridor_used: bool = true
-#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
+##var outWallV = CubeCustom.wallValue
+##var debug: bool = true
 #var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 
 # SETUP for 3x3 debug static with corridors, outside walls open
 #var debug_static_3x3 = true
 #var corridor_used: bool = true
-#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
+##var outWallV = CubeCustom.outSideWallValue
+##var debug: bool = true
 #var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 
 # SETUP debug without corridors, with all walls
 #var debug_static_3x3 = false
 #var corridor_used: bool = false
-#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
+##var outWallV = CubeCustom.wallValue 
+##var debug: bool = true
 #var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 
 # SETUP debug without corridors, without exteriors walls
-var debug_static_3x3 = false
-var corridor_used: bool = false
-var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-var debug: bool = true
-var newConnectionDebug: bool = true
-var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-var triColor:bool = true
-
-# SETUP debug without corridors, without walls
 #var debug_static_3x3 = false
 #var corridor_used: bool = false
-#var outWallV = CubeCustom.outSideWallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = true
+##var outWallV = CubeCustom.outSideWallValue 
+##var debug: bool = true
 #var newConnectionDebug: bool = true
+##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
+
+# SETUP debug without corridors, without walls
+var debug_static_3x3 = false
+var corridor_used: bool = false
+#var outWallV = CubeCustom.outSideWallValue 
+#var debug: bool = true
+var newConnectionDebug: bool = true
 #var showWall:bool = false # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+
 
 # SETUP normal mode
 #var debug_static_3x3 = false
 #var corridor_used: bool = false
-#var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
-#var debug: bool = false
+##var outWallV = CubeCustom.wallValue # -2 = ~ invisible walls (DEBUG), -1 visible walls
+##var debug: bool = false
 #var newConnectionDebug: bool = true
-#var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
-#var triColor:bool = true
+##var showWall:bool = true # will show walls marked as -1 (wallV or outWallV)
 
+
+@export_group("DEBUG")
+@export var debug: bool = false
+@export var showWall:bool = true
+
+##
+## when showWall is set to true:
+##	-1 : show outside wall
+## 	-2 : hide outside wall
+## no effect otherwise
+##
+@export_range(CubeCustom.outSideWallValue, CubeCustom.wallValue) 
+var outWallV:int = -1
+
+
+var triColor:bool = true
 
 var wallV = CubeCustom.wallValue # -1 = wall (only -1 !!)
 var gapBetweenCubeCenter = (CubeCustom.distFromCenter * 2 + 0.1) * \
@@ -235,6 +252,9 @@ func get_rotation_from_basis(src_basis: Basis, dst_basis: Basis) -> Vector3:
 	return rel.get_euler()
 
 func display() -> void:
+	if not debug:
+		outWallV = -1 # safeguard
+	
 	# on the corner: right: (1, 0.707, 0.707), up: (-1, 0.707, 0.707)
 	var defaul_start_pos:Vector3 = coord_first.position
 	var curr_pos:Vector3 = defaul_start_pos

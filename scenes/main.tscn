@@ -31,6 +31,8 @@ algo = 9
 coord_first = NodePath("../First")
 coord_right = NodePath("../Right")
 coord_up = NodePath("../Up")
+debug = true
+outWallV = -2
 
 [node name="First" type="Marker3D" parent="."]
 

@@ -1,0 +1,61 @@
+[gd_scene load_steps=9 format=3 uid="uid://b6dt56uxca8vp"]
+
+[ext_resource type="Script" path="res://scripts/test_generation_002.gd" id="1_yo8oy"]
+[ext_resource type="Material" uid="uid://bigktdomoryie" path="res://materials/debug.tres" id="2_050rg"]
+[ext_resource type="PackedScene" uid="uid://cfkgshoc48ins" path="res://scenes/player.tscn" id="3_tjsip"]
+[ext_resource type="PackedScene" uid="uid://b0wgyq3xq5jsp" path="res://scenes/UI/menu.tscn" id="4_sirxr"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ysvy7"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_w26ew"]
+sky_material = SubResource("ProceduralSkyMaterial_ysvy7")
+
+[sub_resource type="Environment" id="Environment_6d3nw"]
+background_mode = 2
+sky = SubResource("Sky_w26ew")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_2q8er"]
+material = ExtResource("2_050rg")
+
+[node name="TestPlugin" type="Node3D"]
+
+[node name="Polyrinthe" type="Node3D" parent="." node_paths=PackedStringArray("coord_first", "coord_right", "coord_up")]
+script = ExtResource("1_yo8oy")
+algo = 9
+coord_first = NodePath("../Marker3D")
+coord_right = NodePath("../Marker3D2")
+coord_up = NodePath("../Marker3D3")
+debug = true
+showWall = false
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 421.746, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_6d3nw")
+
+[node name="Marker3D" type="Marker3D" parent="."]
+
+[node name="Marker3D2" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+
+[node name="Marker3D3" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+
+[node name="start cube" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.49803, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="start cube"]
+mesh = SubResource("BoxMesh_2q8er")
+
+[node name="Player" parent="." instance=ExtResource("3_tjsip")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.01355)
+
+[node name="Menu" parent="." instance=ExtResource("4_sirxr")]
+
+[connection signal="generation" from="Menu" to="Polyrinthe" method="_on_menu_generation"]
